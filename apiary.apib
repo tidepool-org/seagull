@@ -9,6 +9,20 @@ Seagull stores metadata about users.
 Initially, it just stores blobs of JSON bound to a user ID, but the intent is that said blobs will have specific, 
 versionable format types that will be registered with the API and enforced by it.
 
+Please see the [documentation currently in Tidepool's central repository](https://github.com/tidepool-org/central/blob/master/White-Papers/ServerSideDataOrganization.md)
+for further details on the data format. This is not publicly accessible yet, but will be moved to an accessible place soon.
+
+General philosophy / notes for cheddar:
+
+* You can get a profile and get a block of data that excludes the subdocuments like groups and private.
+* You can set a profile and the subdocuments persist. Any fields you add at the top level are added. You can delete a field by setting its value to null.
+* There's a /meta/group that lets you assign a group name and a group ID. There are a set of current groups defined in the documentation, but the group call will let you use any name. Groups are manipulated with the group API.
+* There's a /meta/private that is identical to the one in the user API.
+
+See the way the user api is evolving. 
+
+Everything from here down is getting old and needs editing.
+
 # Group Metadata
 Stores and retrieves blobs of JSON.
 
@@ -19,7 +33,7 @@ Someday this will also return the definitions of schema for the collections. But
 
 + Request
 
-    A current session token must come from the user-api.
+    A current session token must come from the user-api. This can be a user token, in which case only specific information for that user is accessible, or it can be a server token, which has access to all user data.
 
     + Headers
 
@@ -36,7 +50,8 @@ Someday this will also return the definitions of schema for the collections. But
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
     + userhash (required, string, `userhash`) ... The hash id for the user for whom this data is being stored. Please DO NOT use the user ID;
-    the point is to have a one-way link from the user data to the metadata, but not the other way around.
+    the point is to have a one-way link from the user data to the metadata, but not the other way around. The field that you should use from the 
+    user's user-api record is private.meta.id. Use the /private endpoint to retrieve it.
 
 + Request
     + Headers
@@ -46,13 +61,21 @@ Someday this will also return the definitions of schema for the collections. But
     + Body
 
             {
-                "given_name": "Jonathan", 
-                "surname": "Livingston", 
-                "summary": "I fly far and fast. T1D is something I have, not who I am.",
+                "fullname": "Jonathan Livingston", 
+                "shortname": "Jonny", 
+                "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
                 "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
-                "diagnosis_year": 2010, 
-                "diagnosis_month": 6,
-                "diagnosis_day": 0
+                "groups": {
+                    "team": GROUPID,
+                    "viewers": GROUPID,
+                    "invited": GROUPID,
+                },
+                "private": {
+                    "patient": {
+                        "id": "6fad283648",
+                        "hash": "836486af12587263b8476fad2"
+                    }
+                }
             }    
 
 + Response 201
