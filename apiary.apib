@@ -19,9 +19,28 @@ General philosophy / notes for cheddar:
 * There's a /meta/group that lets you assign a group name and a group ID. There are a set of current groups defined in the documentation, but the group call will let you use any name. Groups are manipulated with the group API.
 * There's a /meta/private that is identical to the one in the user API.
 
-See the way the user api is evolving. 
+Here are the endpoints I plan to document beyond the ones that are already done:
 
-Everything from here down is getting old and needs editing.
+  // POST /metadata/:metaid/group/:name -- creates a group of the given name, assigns group ID
+
+  // GET /metadata/:metaid/group/:name -- returns group ID
+
+  // PUT /metadata/:metaid/group/:name -- updates group ID
+
+  // DELETE /metadata/:metaid/group/:name -- deletes the name from the groups list
+
+  // POST /metadata/:metaid/private/:name -- creates a private id/hash of the given name
+
+  // GET /metadata/:metaid/private/:name -- returns private id/hash
+
+  // PUT /metadata/:metaid/private/:name -- updates private id/hash
+
+  // DELETE /metadata/:metaid/private/:name -- deletes the name from the privates list
+
+
+See the way the user api works. 
+
+
 
 # Group Metadata
 Stores and retrieves blobs of JSON.
@@ -45,13 +64,13 @@ Someday this will also return the definitions of schema for the collections. But
             "profile"
         ]
 
-## Metadata manipulation [/metadata/{collection}/{userhash}]
+## Metadata manipulation [/metadata/{metaid}/{collection}]
 ### Create a metadata record [POST]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
-    + userhash (required, string, `userhash`) ... The hash id for the user for whom this data is being stored. Please DO NOT use the user ID;
-    the point is to have a one-way link from the user data to the metadata, but not the other way around. The field that you should use from the 
-    user's user-api record is private.meta.id. Use the /private endpoint to retrieve it.
+    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. The point is to have a one-way 
+    link from the user data to the metadata, but not the other way around. The field that you should use from the 
+    user's user-api record is private.meta.id. Use the /private endpoint in the user API to retrieve it.
 
 + Request
     + Headers
@@ -65,17 +84,6 @@ Someday this will also return the definitions of schema for the collections. But
                 "shortname": "Jonny", 
                 "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
                 "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
-                "groups": {
-                    "team": GROUPID,
-                    "viewers": GROUPID,
-                    "invited": GROUPID,
-                },
-                "private": {
-                    "patient": {
-                        "id": "6fad283648",
-                        "hash": "836486af12587263b8476fad2"
-                    }
-                }
             }    
 
 + Response 201
@@ -89,8 +97,7 @@ Someday this will also return the definitions of schema for the collections. But
 ### Update a metadata record [PUT]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
-    + userhash (required, string, `userhash`) ... The hash id for the user for whom this data is being stored. Please DO NOT use the user ID;
-    the point is to have a one-way link from the user data to the metadata, but not the other way around.
+    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
 
 + Request
 Body should contain only the fields that should be updated. They must be fields in the schema. 
@@ -116,8 +123,7 @@ Body should contain only the fields that should be updated. They must be fields 
 ### Retrieve a metadata record [GET]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
-    + userhash (required, string, `userhash`) ... The hash id for the user for whom this data is being stored. Please DO NOT use the user ID;
-    the point is to have a one-way link from the user data to the metadata, but not the other way around.
+    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
 
 + Request
     + Headers
@@ -130,15 +136,12 @@ Body should contain only the fields that should be updated. They must be fields 
         If the record was retrieved.
 
 
-        {
-            "given_name": "Jonathan", 
-            "surname": "Livingston", 
-            "summary": "I fly far and fast. T1D is something I have, not who I am.",
-            "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
-            "diagnosis_year": 2010, 
-            "diagnosis_month": 6,
-            "diagnosis_day": 0
-        }    
+            {
+                "fullname": "Jonathan Livingston", 
+                "shortname": "Jonny", 
+                "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
+                "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
+            }    
 
 + Response 404
 
@@ -147,8 +150,7 @@ Body should contain only the fields that should be updated. They must be fields 
 ### Remove a metadata record [DELETE]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
-    + userhash (required, string, `userhash`) ... The hash id for the user for whom this data is being stored. Please DO NOT use the user ID;
-    the point is to have a one-way link from the user data to the metadata, but not the other way around.
+    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
 
 + Request
     + Headers
