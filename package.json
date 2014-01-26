@@ -1,0 +1,32 @@
+{
+  "name": "seagull",
+  "version": "0.1.1",
+  "description": "API for managing user metadata.",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "./lib"
+  },
+  "scripts": {
+    "start": "node lib/index.js",
+    "test": "mocha"
+  },
+  "repository": "https://github.com/tidepool-org/seagull.git",
+  "author": "Tidepool",
+  "license": "BSD-2",
+  "dependencies": {
+    "restify": "~2.6.0",
+    "request": "~2.25.0",
+    "mongojs": "~0.9.10"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-mocha-test": "~0.7.0",
+    "grunt-contrib-jshint": "~0.6.4",
+    "grunt-contrib-uglify": "~0.2.4",
+    "grunt-docco2": "~0.1.2",
+    "grunt-shell-spawn": "~0.2.4",
+    "chai": "~1.8.1",
+    "supertest": "~0.8.2",
+    "amdefine": "~0.1.0"
+  }
+}
