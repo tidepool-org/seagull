@@ -4,6 +4,8 @@ HOST: http://api.tidepool.io
 # Tidepool Seagull
 **"An archive is a dump without the seagulls."** -- *Perfesser Shoe, 1990 (McNally)*
 
+## Overview
+
 Seagull stores metadata about users. 
 
 Initially, it just stores blobs of JSON bound to a user ID, but the intent is that said blobs will have specific, 
@@ -18,6 +20,56 @@ General philosophy / notes:
 * You can set a profile and the subdocuments persist. Any fields you add at the top level are added. You can delete a field by setting its value to null.
 * There's a /meta/group that lets you assign a group name and a group ID. There are a set of current groups defined in the documentation, but the group call will let you use any name. Groups are manipulated with the group API.
 * There's a /meta/private that is identical to the one in the user API.
+
+We follow many of the usual RESTful guidelines.
+* CRUD semantics:
+   * Creation is done with POST; an existing record cannot be overwritten by a POST. If the record was created, you get a 201 and the created record is returned in the body. 
+   If the creation is for a subrecord and the main record cannot be found, you get a 404. If the record already exists, you get a 422. 
+   * Read is done with GET. If not found, 404. If found, result is 200 with the record in the body.
+   * Update is done with PUT. Record must exist - we do not have "upsert" semantics. Missing record is 404, successful update is 200 with the 
+   updated record returned. If Delete is supported, subrecords can be deleted by setting the value to null, or by using Delete.
+   * Delete is done with DELETE, but isn't always supported. We don't want to be deleting customer data without having a solid understanding 
+   of why we're doing it and how to do it safely. In the short term, we just disallow it. But in the long term, we should let people 
+   make their data go away if they really want it to. Successful DELETE returns a 204 (no data to delete)
+
+
+
+
+
+## Notes for the blip pilot study release
+
+The intent is that metadata will NOT include demographic information -- that will be found in a separate endpoint managed through the
+/metadata/private/patient id/hash pair. But for the pilot, we're going to store metadata in this database. 
+
+The schema we should use is as follows:
+
+```
+            {
+                "fullname": "Jonathan Livingston", 
+                "shortname": "Jonny", 
+                "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
+                "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
+                "patient": {
+                    "sharable": false,
+                    "health": {
+                        diagnosisDate: "2010-08-10"
+                    },
+                    "demographic": {
+                        birthDate: "1986-04-01",
+                        country: "US",
+                        region: "California",
+                        postalcode: "94110",
+                        gender: "male",
+                    }
+                }
+            }    
+```
+
+All demographic fields are optional and should support a null value or a missing field.
+
+The sharable flag should default to false. It would be nice to have it in the UI with a question something like:
+**May we share your demographic information anonymously with health researchers?** But if that raises too many questions for the pilot, we
+can just leave it as false for the pilot study.
 
 
 
@@ -43,8 +95,12 @@ Someday this will also return the definitions of schema for the collections. But
             "profile"
         ]
 
-## Metadata manipulation [/metadata/{userid}/{collection}]
+## Metadata Manipulation [/metadata/{userid}/{collection}]
+
+The main metadata block of information is managed here. Groups and Private have special endpoints.
+
 ### Create a metadata record [POST]
+
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
     + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. The API will look up the user's meta 
@@ -147,7 +203,7 @@ Body should contain only the fields that should be updated. They must be fields 
 
         If the record was not found.
 
-## Group data manipulation [/metadata/group/{userid}/{collection}/{name}]
+## Group Data Manipulation [/metadata/group/{userid}/{collection}/{name}]
 
 Where a body is required, it should contain an object with the field 'id' -- the id value will be stored in the group.
 
@@ -249,12 +305,12 @@ Where a body is required, it should contain an object with the field 'id' -- the
 
         If the record was not found.
 
-## Private data manipulation [/metadata/private/{userid}/{collection}/{name}]
+## Private Pair Manipulation [/metadata/private/{userid}/{collection}/{name}]
 
 Where a body is required, it should contain an object with the field 'id' -- the id value will be stored in the group.
 
 
-### Create a private record [POST]
+### Create (generate) a private record [POST]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
     + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. The API will look up the user's meta 
