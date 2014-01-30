@@ -1,0 +1,174 @@
+FORMAT: 1A
+HOST: http://api.tidepool.io
+
+# Tidepool Seagull
+**"An archive is a dump without the seagulls."** -- *Perfesser Shoe, 1990 (McNally)*
+
+Seagull stores metadata about users. 
+
+Initially, it just stores blobs of JSON bound to a user ID, but the intent is that said blobs will have specific, 
+versionable format types that will be registered with the API and enforced by it.
+
+Please see the [documentation currently in Tidepool's central repository](https://github.com/tidepool-org/central/blob/master/White-Papers/ServerSideDataOrganization.md)
+for further details on the data format. This is not publicly accessible yet, but will be moved to an accessible place soon.
+
+General philosophy / notes for cheddar:
+
+* You can get a profile and get a block of data that excludes the subdocuments like groups and private.
+* You can set a profile and the subdocuments persist. Any fields you add at the top level are added. You can delete a field by setting its value to null.
+* There's a /meta/group that lets you assign a group name and a group ID. There are a set of current groups defined in the documentation, but the group call will let you use any name. Groups are manipulated with the group API.
+* There's a /meta/private that is identical to the one in the user API.
+
+Here are the endpoints I plan to document beyond the ones that are already done:
+
+  // POST /metadata/:userid/group/:name -- creates a group of the given name, assigns group ID
+
+  // GET /metadata/:userid/group/:name -- returns group ID
+
+  // PUT /metadata/:userid/group/:name -- updates group ID
+
+  // DELETE /metadata/:userid/group/:name -- deletes the name from the groups list
+
+  // POST /metadata/:userid/private/:name -- creates a private id/hash of the given name
+
+  // GET /metadata/:userid/private/:name -- returns private id/hash
+
+  // PUT /metadata/:userid/private/:name -- updates private id/hash
+
+  // DELETE /metadata/:userid/private/:name -- deletes the name from the privates list
+
+
+See the way the user api works. 
+
+
+
+# Group Metadata
+Stores and retrieves blobs of JSON.
+
+## Metadata Collection [/metadata]
+### Get permissible collections [GET]
+Retrieves the set of allowed collection names. Initially, this is only 'profile'. 
+Someday this will also return the definitions of schema for the collections. But not yet.
+
++ Request
+
+    A current session token must come from the user-api. This can be a user token, in which case only specific information for that user is accessible, or it can be a server token, which has access to all user data.
+
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
++ Response 200
+
+        [
+            "profile"
+        ]
+
+## Metadata manipulation [/metadata/{metaid}/{collection}]
+### Create a metadata record [POST]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. The point is to have a one-way 
+    link from the user data to the metadata, but not the other way around. The field that you should use from the 
+    user's user-api record is private.meta.id. Use the /private endpoint in the user API to retrieve it.
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
+    + Body
+
+            {
+                "fullname": "Jonathan Livingston", 
+                "shortname": "Jonny", 
+                "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
+                "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
+            }    
+
++ Response 201
+
+        If the record was created.
+
++ Response 422
+
+        If the record could not be created because a record with that value already exists
+
+### Update a metadata record [PUT]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
+
++ Request
+Body should contain only the fields that should be updated. They must be fields in the schema. 
+
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
+    + Body
+
+            {
+                "summary": "Burrito ergo sum."
+            }    
+
++ Response 200
+
+        If the record was updated. 
+
++ Response 404
+
+        If the record addressed could not be found in the database.
+
+### Retrieve a metadata record [GET]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
+
++ Response 200 (application/json)
+
+        If the record was retrieved.
+
+
+            {
+                "fullname": "Jonathan Livingston", 
+                "shortname": "Jonny", 
+                "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
+                "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
+            }    
+
++ Response 404
+
+        If the record was not found.
+
+### Remove a metadata record [DELETE]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
+
++ Response 501
+
+        *This API call is not yet implemented.*
+
++ Response 200
+
+        If the record was deleted.
+
++ Response 404
+
+        If the record was not found.
+
+
+
