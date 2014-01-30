@@ -21,21 +21,21 @@ General philosophy / notes for cheddar:
 
 Here are the endpoints I plan to document beyond the ones that are already done:
 
-  // POST /metadata/:userid/group/:name -- creates a group of the given name, assigns group ID
+  // POST /metadata/group/:userid/:name -- creates a group of the given name, assigns group ID
 
-  // GET /metadata/:userid/group/:name -- returns group ID
+  // GET /metadata/group/:userid/:name -- returns group ID
 
-  // PUT /metadata/:userid/group/:name -- updates group ID
+  // PUT /metadata/group/:userid/:name -- updates group ID
 
-  // DELETE /metadata/:userid/group/:name -- deletes the name from the groups list
+  // DELETE /metadata/group/:userid/:name -- deletes the name from the groups list
 
-  // POST /metadata/:userid/private/:name -- creates a private id/hash of the given name
+  // POST /metadata/private/:userid/:name -- creates a private id/hash of the given name
 
-  // GET /metadata/:userid/private/:name -- returns private id/hash
+  // GET /metadata/private/:userid/:name -- returns private id/hash
 
-  // PUT /metadata/:userid/private/:name -- updates private id/hash
+  // PUT /metadata/private/:userid/:name -- updates private id/hash
 
-  // DELETE /metadata/:userid/private/:name -- deletes the name from the privates list
+  // DELETE /metadata/private/:userid/:name -- deletes the name from the privates list
 
 
 See the way the user api works. 
@@ -45,7 +45,7 @@ See the way the user api works.
 # Group Metadata
 Stores and retrieves blobs of JSON.
 
-## Metadata Collection [/metadata]
+## Metadata Collection [/metadata/collections]
 ### Get permissible collections [GET]
 Retrieves the set of allowed collection names. Initially, this is only 'profile'. 
 Someday this will also return the definitions of schema for the collections. But not yet.
@@ -64,13 +64,12 @@ Someday this will also return the definitions of schema for the collections. But
             "profile"
         ]
 
-## Metadata manipulation [/metadata/{metaid}/{collection}]
+## Metadata manipulation [/metadata/{userid}/{collection}]
 ### Create a metadata record [POST]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
-    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. The point is to have a one-way 
-    link from the user data to the metadata, but not the other way around. The field that you should use from the 
-    user's user-api record is private.meta.id. Use the /private endpoint in the user API to retrieve it.
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. The API will look up the user's meta 
+    information. A server can look up any user, but a user token can only look up the user associated with the token.
 
 + Request
     + Headers
@@ -97,7 +96,7 @@ Someday this will also return the definitions of schema for the collections. But
 ### Update a metadata record [PUT]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
-    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
 
 + Request
 Body should contain only the fields that should be updated. They must be fields in the schema. 
@@ -123,7 +122,7 @@ Body should contain only the fields that should be updated. They must be fields 
 ### Retrieve a metadata record [GET]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
-    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
+    + userid (required, string, `metaid`) ... The userid for the user for whom this data is being stored. 
 
 + Request
     + Headers
@@ -147,10 +146,64 @@ Body should contain only the fields that should be updated. They must be fields 
 
         If the record was not found.
 
-### Remove a metadata record [DELETE]
+### Remove a metadata record (NOT IMPLEMENTED) [DELETE]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
-    + metaid (required, string, `metaid`) ... The metaid for the user for whom this data is being stored. 
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
++ Response 501
+
+        This function is currently not implemented.
+
++ Response 200
+
+        If the record was retrieved.
+
++ Response 404
+
+        If the record was not found.
+
+## Group data manipulation [/metadata/group/{userid}/{collection}/{name}]
+
+Where a body is required, it should contain an object with the field 'id' -- the id value will be stored in the group.
+
+
+### Create a group record [POST]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. The API will look up the user's meta 
+    information. A server can look up any user, but a user token can only look up the user associated with the token.
+    + name (required, string, `team`) ... The name of the group record. Any name is legal. Currently defined are team, uploaders, viewers, patients, invited, invitedby.
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
+    + Body
+
+            {
+                id: "2423412"
+            }    
+
++ Response 201
+
+        If the record was created.
+
++ Response 422
+
+        If the record could not be created because a record with that name already exists
+
+### Retrieve a group record [GET]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + userid (required, string, `metaid`) ... The userid for the user for whom this data is being stored. 
+    + name (required, string, `team`) ... The name of the group record. Any name is legal. Currently defined are team, uploaders, viewers, patients, invited, invitedby.
 
 + Request
     + Headers
@@ -158,17 +211,183 @@ Body should contain only the fields that should be updated. They must be fields 
             x-tidepool-session-token : 23sadf87.123840.aasd90JKj
 
 
-+ Response 501
++ Response 200 (application/json)
 
-        *This API call is not yet implemented.*
+        If the record was retrieved.
 
-+ Response 200
 
-        If the record was deleted.
+            {
+                "fullname": "Jonathan Livingston", 
+                "shortname": "Jonny", 
+                "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
+                "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
+            }    
 
 + Response 404
 
         If the record was not found.
+
+### Update a group record [PUT]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
+    + name (required, string, `team`) ... The name of the group record. Any name is legal. Currently defined are team, uploaders, viewers, patients, invited, invitedby.
+
++ Request
+
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
+    + Body
+
+            {
+                id: "1238ac63"
+            }    
+
++ Response 200
+
+        If the record was updated. 
+
++ Response 404
+
+        If the record addressed could not be found in the database.
+
+### Remove a group record (NOT IMPLEMENTED) [DELETE]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
+    + name (required, string, `team`) ... The name of the group record. Any name is legal. Currently defined are team, uploaders, viewers, patients, invited, invitedby.
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
++ Response 204
+
++ Response 404
+
+        If the record was not found.
+
+## Private data manipulation [/metadata/private/{userid}/{collection}/{name}]
+
+Where a body is required, it should contain an object with the field 'id' -- the id value will be stored in the group.
+
+
+### Create a private record [POST]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. The API will look up the user's meta 
+    information. A server can look up any user, but a user token can only look up the user associated with the token.
+    + name (required, string, `sandcastle`) ... The name of the private record. Any name is legal. Currently defined are patient, sandcastle.
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
++ Response 201
+
+    + Body
+
+            {
+                id: "2423412",
+                hash: "69fd718d9aa9a487e6142e21"
+            }    
+
++ Response 404
+
+        If the metadata record corresponding to the user specified was not found in the database.
+
+
++ Response 422
+
+        If the private record could not be created because a record with that name already exists in this user's metadata.
+
+### Retrieve a private record [GET]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + userid (required, string, `metaid`) ... The userid for the user for whom this data is being stored. 
+    + name (required, string, `sandcastle`) ... The name of the private record. Any name is legal. Currently defined are patient, sandcastle.
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
+
++ Response 200 (application/json)
+
+
+    + Body
+
+            {
+                id: "2423412",
+                hash: "69fd718d9aa9a487e6142e21"
+            }    
+
+
++ Response 404
+
+        If the userid was not found or the record was not found in that userid.
+
+### Update a group record (NOT IMPLEMENTED) [PUT]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
+    + name (required, string, `sandcastle`) ... The name of the private record. Any name is legal. Currently defined are patient, sandcastle.
+
++ Request
+
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
+    + Body
+
+    + Body
+
+            {
+                id: "2423412",
+                hash: "69fd718d9aa9a487e6142e21"
+            }    
+
++ Response 501
+
+        This endpoint has not yet been implemented.
+
+
++ Response 200
+
+        If the record was updated. 
+
++ Response 404
+
+        If the record addressed could not be found in the database.
+
+### Remove a group record (NOT IMPLEMENTED) [DELETE]
++ Parameters
+    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
+    + name (required, string, `sandcastle`) ... The name of the private record. Any name is legal. Currently defined are patient, sandcastle.
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
++ Response 501
+
+        This endpoint has not yet been implemented.
+
++ Response 204
+
++ Response 404
+
+        If the record was not found.
+
+
 
 
 
