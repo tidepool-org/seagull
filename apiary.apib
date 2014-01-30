@@ -12,33 +12,12 @@ versionable format types that will be registered with the API and enforced by it
 Please see the [documentation currently in Tidepool's central repository](https://github.com/tidepool-org/central/blob/master/White-Papers/ServerSideDataOrganization.md)
 for further details on the data format. This is not publicly accessible yet, but will be moved to an accessible place soon.
 
-General philosophy / notes for cheddar:
+General philosophy / notes:
 
 * You can get a profile and get a block of data that excludes the subdocuments like groups and private.
 * You can set a profile and the subdocuments persist. Any fields you add at the top level are added. You can delete a field by setting its value to null.
 * There's a /meta/group that lets you assign a group name and a group ID. There are a set of current groups defined in the documentation, but the group call will let you use any name. Groups are manipulated with the group API.
 * There's a /meta/private that is identical to the one in the user API.
-
-Here are the endpoints I plan to document beyond the ones that are already done:
-
-  // POST /metadata/group/:userid/:name -- creates a group of the given name, assigns group ID
-
-  // GET /metadata/group/:userid/:name -- returns group ID
-
-  // PUT /metadata/group/:userid/:name -- updates group ID
-
-  // DELETE /metadata/group/:userid/:name -- deletes the name from the groups list
-
-  // POST /metadata/private/:userid/:name -- creates a private id/hash of the given name
-
-  // GET /metadata/private/:userid/:name -- returns private id/hash
-
-  // PUT /metadata/private/:userid/:name -- updates private id/hash
-
-  // DELETE /metadata/private/:userid/:name -- deletes the name from the privates list
-
-
-See the way the user api works. 
 
 
 
