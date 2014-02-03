@@ -60,6 +60,16 @@ module.exports = (function() {
   // Configurable salt for password encryption
   env.saltDeploy = config.fromEnvironment('SALT_DEPLOY');
 
+  env.userApi = {};
+  // Name of the hakken service for user-api discovery
+  env.userApi.serviceName = config.fromEnvironment("USER_API_SERVICE");
+
+  // Name of this server to pass to user-api when getting a server token
+  env.userApi.serverName = config.fromEnvironment("SERVER_NAME", "seagull");
+
+  // The secret to use when getting a server token from user-api
+  env.userApi.serverSecret = config.fromEnvironment("SERVER_SECRET");
+
   // The host to contact for discovery
   if (process.env.DISCOVERY_HOST != null) {
     env.discovery = {};
