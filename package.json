@@ -1,6 +1,6 @@
 {
   "name": "seagull",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "API for managing user metadata.",
   "main": "lib/index.js",
   "directories": {
