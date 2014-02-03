@@ -18,6 +18,8 @@
 
 var fs = require('fs');
 
+var config = require('amoeba').config;
+
 function maybeReplaceWithContentsOfFile(obj, field)
 {
   var potentialFile = obj[field];
@@ -31,13 +33,13 @@ module.exports = (function() {
   var env = {};
 
   // The port to attach an HTTP listener, if null, no HTTP listener will be attached
-  env.httpPort = process.env.PORT || null;
+  env.httpPort = config.fromEnvironment('PORT', null);
 
   // The port to attach an HTTPS listener, if null, no HTTPS listener will be attached
-  env.httpsPort = process.env.HTTPS_PORT || null;
+  env.httpsPort = config.fromEnvironment('HTTPS_PORT', null);
 
   // The https config to pass along to https.createServer.
-  var theConfig = process.env.HTTPS_CONFIG || null;
+  var theConfig = config.fromEnvironment('HTTPS_CONFIG', null);
   env.httpsConfig = null;
   if (theConfig != null) {
     env.httpsConfig = JSON.parse(theConfig);
@@ -53,28 +55,10 @@ module.exports = (function() {
     throw new Error('Must specify either PORT or HTTPS_PORT in your environment.');
   }
 
-  env.mongoConnectionString = process.env.MONGO_CONNECTION_STRING || 'mongodb://localhost/user';
-  env.userAdminKey = process.env.ADMIN_KEY || ''; // if the admin key isn't specified, disable admin mode.
-  env.logName = process.env.LOG_NAME || 'userapi';
-
-
-  // Encryption secret, keep it safe!
-  env.apiSecret = process.env.API_SECRET;
-  if (env.apiSecret == null) {
-    throw new Error('Must specify an API_SECRET in your environment.');
-  }
-
-  // Shared secret for servers, keep it safe!
-  env.serverSecret = process.env.API_SECRET;
-  if (env.serverSecret == null) {
-    throw new Error('Must specify a SERVER_SECRET in your environment.');
-  }
+  env.mongoConnectionString = config.fromEnvironment('MONGO_CONNECTION_STRING', 'mongodb://localhost/user');
 
   // Configurable salt for password encryption
-  env.saltDeploy = process.env.SALT_DEPLOY;
-  if (env.saltDeploy == null) {
-    throw new Error('Must specify SALT_DEPLOY in your environment.');
-  }
+  env.saltDeploy = config.fromEnvironment('SALT_DEPLOY');
 
   // The host to contact for discovery
   if (process.env.DISCOVERY_HOST != null) {
