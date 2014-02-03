@@ -17,7 +17,7 @@
 
 'use strict';
 
-var expect = require('chai').expect;
+var expect = require('salinity').expect;
 // expect violates this jshint thing a lot, so we just suppress it
 /* jshint expr: true */
 
