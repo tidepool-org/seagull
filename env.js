@@ -70,22 +70,15 @@ module.exports = (function() {
   // The secret to use when getting a server token from user-api
   env.userApi.serverSecret = config.fromEnvironment("SERVER_SECRET");
 
-  // The host to contact for discovery
-  if (process.env.DISCOVERY_HOST != null) {
-    env.discovery = {};
-    env.discovery.host = process.env.DISCOVERY_HOST;
+  env.discovery = {};
+  // The host to connect to for discovery
+  env.discovery.host = config.fromEnvironment('DISCOVERY_HOST');
 
-    env.serviceName = process.env.SERVICE_NAME;
-    if (env.serviceName == null) {
-      throw new Error('Environment variable SERVICE_NAME must be set if DISCOVERY_HOST is set.');
-    }
+  // The service name to publish on discovery
+  env.serviceName = config.fromEnvironment('SERVICE_NAME');
 
-    // The local host to expose to discovery
-    env.publishHost = process.env.PUBLISH_HOST;
-    if (env.publishHost == null) {
-      throw new Error('Environment variable PUBLISH_HOST must be set if DISCOVERY_HOST is set.');
-    }
-  }
+  // The local host to publish to discovery
+  env.publishHost = config.fromEnvironment('PUBLISH_HOST');
 
   return env;
 })();
