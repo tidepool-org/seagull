@@ -24,13 +24,13 @@
     "user-api-client": "0.0.2"
   },
   "devDependencies": {
-    "salinity": "tidepool-org/salinity",
     "grunt": "0.4.1",
     "grunt-mocha-test": "0.7.0",
     "grunt-contrib-jshint": "0.6.4",
     "grunt-contrib-uglify": "0.2.4",
     "grunt-docco2": "0.1.2",
     "grunt-shell-spawn": "0.2.4",
+    "salinity": "0.0.1",
     "supertest": "0.8.2"
   }
 }
