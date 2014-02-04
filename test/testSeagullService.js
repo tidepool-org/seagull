@@ -69,7 +69,6 @@ describe('seagull', function () {
                return done(err);
              }
              expect(err).to.not.exist;
-             // console.log(obj);
              expect(obj.res.body.down).to.eql([]);
              expect(obj.res.body.up).to.eql(['mongo']);
              done();
