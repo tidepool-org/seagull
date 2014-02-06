@@ -15,6 +15,9 @@
  == BSD2 LICENSE ==
 */
 
+// expect violates this jshint thing a lot, so we just suppress it
+/* jshint expr: true */
+
 'use strict';
 
 var expect = require('salinity').expect;

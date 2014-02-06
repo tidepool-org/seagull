@@ -1,19 +1,22 @@
 /*
  == BSD2 LICENSE ==
  Copyright (c) 2014, Tidepool Project
- 
+
  This program is free software; you can redistribute it and/or modify it under
  the terms of the associated License, which is identical to the BSD 2-Clause
  License as published by the Open Source Initiative at opensource.org.
- 
+
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE. See the License for more details.
- 
+
  You should have received a copy of the License along with this program; if
  not, you can obtain one from Tidepool Project at tidepool.org.
  == BSD2 LICENSE ==
-*/
+ */
+
+// expect violates this jshint thing a lot, so we just suppress it
+/* jshint expr: true */
 
 'use strict';
 
@@ -64,15 +67,16 @@ describe('seagull', function () {
     supertest
       .get('/status')
       .expect(200)
-      .end(function (err, obj) {
-             if (err) {
-               return done(err);
-             }
-             expect(err).to.not.exist;
-             expect(obj.res.body.down).to.eql([]);
-             expect(obj.res.body.up).to.eql(['mongo']);
-             done();
-           });
+      .end(
+      function (err, obj) {
+        if (err) {
+          return done(err);
+        }
+        expect(err).to.not.exist;
+        expect(obj.res.body.down).to.eql([]);
+        expect(obj.res.body.up).to.eql(['mongo']);
+        done();
+      });
   });
 
   // GET /collections -- returns all the valid collection names
@@ -81,14 +85,15 @@ describe('seagull', function () {
     supertest
       .get('/collections')
       .expect(200)
-      .end(function (err, obj) {
-             if (err) {
-               return done(err);
-             }
-             expect(err).to.not.exist;
-             expect(obj.res.body).deep.equals(['profile', 'groups', 'private']);
-             done();
-           });
+      .end(
+      function (err, obj) {
+        if (err) {
+          return done(err);
+        }
+        expect(err).to.not.exist;
+        expect(obj.res.body).deep.equals(['profile', 'groups', 'private']);
+        done();
+      });
   });
 
   var defaultUser = {userid: 'billy' };
@@ -110,73 +115,77 @@ describe('seagull', function () {
     expect(userApiClient.getMetaPair).to.have.been.calledWith(user.userid, sinon.match.func);
   }
 
-  describe("/:userid/private/:name", function () {
+  describe('/:userid/private/:name', function () {
     var pair1 = { name: '', id: 'will', hash: 'a' };
 
     var sally = { userid: 'sally', isserver: true };
 
-    it("GET should create all required objects if they don't exist", function (done) {
+    it('GET should create all required objects if they don\'t exist', function (done) {
       setupTokenAndMeta(sally);
       sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(1, null, pair1);
       supertest
         .get('/sally/private/armada')
         .set(sessionTokenHeader, 'howdy')
         .expect(200)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expect(res.body).deep.equals(pair1);
-               expectTokenAndMeta('howdy', sally);
-               expect(userApiClient.getAnonymousPair).to.have.been.calledOnce;
-               expect(userApiClient.getAnonymousPair).to.have.been.calledWith(sally.userid, sinon.match.func);
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(pair1);
+          expectTokenAndMeta('howdy', sally);
+          expect(userApiClient.getAnonymousPair).to.have.been.calledOnce;
+          expect(userApiClient.getAnonymousPair).to.have.been.calledWith(sally.userid, sinon.match.func);
+          done();
+        });
     });
 
-    it("GET should create just the pair if it doesn't exist", function (done) {
+    it('GET should create just the pair if it doesn\'t exist', function (done) {
       setupTokenAndMeta(sally);
       sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(1, null, pair1);
       supertest
         .get('/sally/private/clamshell')
         .set(sessionTokenHeader, 'howdy')
         .expect(200)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expect(res.body).deep.equals(pair1);
-               expectTokenAndMeta('howdy', sally);
-               expect(userApiClient.getAnonymousPair).to.have.been.calledOnce;
-               expect(userApiClient.getAnonymousPair).to.have.been.calledWith(sally.userid, sinon.match.func);
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(pair1);
+          expectTokenAndMeta('howdy', sally);
+          expect(userApiClient.getAnonymousPair).to.have.been.calledOnce;
+          expect(userApiClient.getAnonymousPair).to.have.been.calledWith(sally.userid, sinon.match.func);
+          done();
+        });
     });
 
-    it("GET should get the pair if it already exists", function (done) {
+    it('GET should get the pair if it already exists', function (done) {
       setupTokenAndMeta(sally);
       supertest
         .get('/sally/private/clamshell')
         .set(sessionTokenHeader, 'howdy')
         .expect(200)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expect(res.body).deep.equals(pair1);
-               expectTokenAndMeta('howdy', sally);
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(pair1);
+          expectTokenAndMeta('howdy', sally);
+          done();
+        });
     });
 
-    it("DELETE should return 501 because it doesn't work yet", function (done) {
+    it('DELETE should return 501 because it doesn\'t work yet', function (done) {
       setupTokenAndMeta(sally);
       supertest
         .del('/sally/private/armada')
         .set(sessionTokenHeader, 'howdy')
         .expect(501)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expectTokenAndMeta('howdy', sally);
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expectTokenAndMeta('howdy', sally);
+          done();
+        });
     });
 
-    it("GET should fail with a non-server token", function (done) {
+    it('GET should fail with a non-server token', function (done) {
       setupTokenAndMeta();
       sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(1, null, pair1);
       supertest
@@ -186,7 +195,7 @@ describe('seagull', function () {
     });
   });
 
-  describe("/:userid/:collection", function () {
+  describe('/:userid/:collection', function () {
     var metatest1 = {
       name: 'Testy',
       bio: 'Awesome is my game.'
@@ -196,17 +205,18 @@ describe('seagull', function () {
       bio: 'Haunting is my game.'
     };
 
-    it("GET should return 404 because it doesn't exist yet", function (done) {
+    it('GET should return 404 because it doesn\'t exist yet', function (done) {
       setupTokenAndMeta();
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
         .expect(404)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expectTokenAndMeta('howdy');
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expectTokenAndMeta('howdy');
+          done();
+        });
     });
 
     it('POST should return a 200 on success', function (done) {
@@ -216,12 +226,13 @@ describe('seagull', function () {
         .send(metatest1)
         .set(sessionTokenHeader, 'howdy')
         .expect(200)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expect(res.body).deep.equals(metatest1);
-               expectTokenAndMeta('howdy');
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(metatest1);
+          expectTokenAndMeta('howdy');
+          done();
+        });
     });
 
     it('GET should return 200 and stored result on success', function (done) {
@@ -230,12 +241,13 @@ describe('seagull', function () {
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
         .expect(200)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expect(res.body).deep.equals(metatest1);
-               expectTokenAndMeta('howdy');
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(metatest1);
+          expectTokenAndMeta('howdy');
+          done();
+        });
     });
 
     it('PUT should return 200 on success', function (done) {
@@ -245,12 +257,13 @@ describe('seagull', function () {
         .send(metatest2)
         .set(sessionTokenHeader, 'howdy')
         .expect(200)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expect(res.body).deep.equals(_.extend(_.cloneDeep(metatest1), metatest2));
-               expectTokenAndMeta('howdy');
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(_.extend(_.cloneDeep(metatest1), metatest2));
+          expectTokenAndMeta('howdy');
+          done();
+        });
     });
 
     it('GET should return 200 and updated result on success', function (done) {
@@ -259,48 +272,50 @@ describe('seagull', function () {
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
         .expect(200)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expect(res.body).deep.equals(_.extend(_.cloneDeep(metatest1), metatest2));
-               expectTokenAndMeta('howdy');
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(_.extend(_.cloneDeep(metatest1), metatest2));
+          expectTokenAndMeta('howdy');
+          done();
+        });
     });
 
-    it("DELETE should return 501 because it doesn't work yet", function (done) {
+    it('DELETE should return 501 because it doesn\'t work yet', function (done) {
       setupTokenAndMeta();
       supertest
         .del('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
         .expect(501)
-        .end(function (err, res) {
-               expect(err).to.not.exist;
-               expectTokenAndMeta('howdy');
-               done();
-             });
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expectTokenAndMeta('howdy');
+          done();
+        });
     });
   });
 
-  describe('/:userid/private', function(){
-    it("should return 404 on GET", function(done){
+  describe('/:userid/private', function () {
+    it('should return 404 on GET', function (done) {
       supertest.get('/billy/private')
         .expect(404, done);
-    })
+    });
 
-    it("should return 404 on POST", function(done){
+    it('should return 404 on POST', function (done) {
       supertest.post('/billy/private')
         .expect(404, done);
-    })
+    });
 
-    it("should return 404 on PUT", function(done){
+    it('should return 404 on PUT', function (done) {
       supertest.put('/billy/private')
         .expect(404, done);
-    })
+    });
 
-    it("should return 404 on DELETE", function(done){
+    it('should return 404 on DELETE', function (done) {
       supertest.del('/billy/private')
         .expect(404, done);
-    })
-  })
+    });
+  });
 });
 
