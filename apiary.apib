@@ -103,13 +103,15 @@ Someday this will also return the definitions of schema for the collections. But
 
 The main metadata block of information is managed here. Groups and Private have special endpoints.
 
-### Create or update a metadata collection [POST, PUT]
+### Create or update a metadata collection (also works with PUT) [POST]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types.
     + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
 
 + Request
-Body should contain the fields that should be updated. (Someday, the field names will be enforced by a schema). Omitting a field will not remove it -- to delete a field, you must set its value to null. 
+
+    Body should contain the fields that should be updated. (Someday, the field names will be enforced by a schema). 
+    Omitting a field will not remove it -- to delete a field, you must set its value to null. 
 
     + Headers
 
@@ -163,15 +165,9 @@ Body should contain the fields that should be updated. (Someday, the field names
 
 + Response 501
 
-        This function is currently not implemented.
-
 + Response 204
 
-        If the collection was deleted.
-
 + Response 404
-
-        If the user or collection was not found.
 
 
 ## Private Pair Manipulation [/metadata/private/{userid}/{name}]
@@ -183,7 +179,6 @@ DELETE is spec'd but not implemented yet.
 
 ### Retrieve a private pair [GET]
 + Parameters
-    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
     + userid (required, string, `metaid`) ... The userid for the user for whom this data is being stored. 
     + name (required, string, `sandcastle`) ... The name of the private pair. Any name is legal. Currently defined are patient, sandcastle.
 
@@ -210,7 +205,6 @@ DELETE is spec'd but not implemented yet.
 
 ### Remove a group record (NOT IMPLEMENTED) [DELETE]
 + Parameters
-    + collection (required, string, `profile`) ... A collection type from one of the registered types. Initially, this is only 'profile'.
     + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
     + name (required, string, `sandcastle`) ... The name of the private record. Any name is legal. Currently defined are patient, sandcastle.
 
