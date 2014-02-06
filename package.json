@@ -17,12 +17,12 @@
     "amoeba": "0.0.3",
     "bunyan": "0.22.1",
     "crypto-js": "3.1.2-2",
-    "hakken": "0.0.10",
+    "hakken": "0.1.0",
     "lodash": "2.4.1",
     "mongojs": "0.9.10",
     "restify": "2.6.0",
     "request": "2.33.0",
-    "user-api-client": "0.0.2"
+    "user-api-client": "0.1.2"
   },
   "devDependencies": {
     "grunt": "0.4.1",
