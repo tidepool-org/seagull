@@ -113,7 +113,7 @@ describe('seagull', function () {
   describe("/:userid/private/:name", function () {
     var pair1 = { name: '', id: 'will', hash: 'a' };
 
-    var sally = { userid: 'sally' };
+    var sally = { userid: 'sally', isserver: true };
 
     it("GET should create all required objects if they don't exist", function (done) {
       setupTokenAndMeta(sally);
@@ -164,16 +164,25 @@ describe('seagull', function () {
     });
 
     it("DELETE should return 501 because it doesn't work yet", function (done) {
-      setupTokenAndMeta();
+      setupTokenAndMeta(sally);
       supertest
-        .del('/billy/private/armada')
+        .del('/sally/private/armada')
         .set(sessionTokenHeader, 'howdy')
         .expect(501)
         .end(function (err, res) {
                expect(err).to.not.exist;
-               expectTokenAndMeta('howdy');
+               expectTokenAndMeta('howdy', sally);
                done();
              });
+    });
+
+    it("GET should fail with a non-server token", function (done) {
+      setupTokenAndMeta();
+      sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(1, null, pair1);
+      supertest
+        .get('/billy/private/armada')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(401, done);
     });
   });
 
@@ -271,5 +280,27 @@ describe('seagull', function () {
              });
     });
   });
+
+  describe('/:userid/private', function(){
+    it("should return 404 on GET", function(done){
+      supertest.get('/billy/private')
+        .expect(404, done);
+    })
+
+    it("should return 404 on POST", function(done){
+      supertest.post('/billy/private')
+        .expect(404, done);
+    })
+
+    it("should return 404 on PUT", function(done){
+      supertest.put('/billy/private')
+        .expect(404, done);
+    })
+
+    it("should return 404 on DELETE", function(done){
+      supertest.del('/billy/private')
+        .expect(404, done);
+    })
+  })
 });
 
