@@ -22,6 +22,6 @@ sleep 3
 trap "cleanup ${MONGO_PID}" EXIT
 echo "Running tests"
 
-./node_modules/.bin/grunt test
+./node_modules/.bin/grunt jshint test
 
 
