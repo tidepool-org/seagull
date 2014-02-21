@@ -60,19 +60,21 @@ module.exports = (function() {
   // Configurable salt for password encryption
   env.saltDeploy = config.fromEnvironment('SALT_DEPLOY');
 
-  env.userApi = {};
-  // Name of the hakken service for user-api discovery
-  env.userApi.serviceName = config.fromEnvironment("USER_API_SERVICE");
+  env.userApi = {
+    // Name of the hakken service for user-api discovery
+    serviceSpec: config.fromEnvironment("USER_API_SERVICE"),
 
-  // Name of this server to pass to user-api when getting a server token
-  env.userApi.serverName = config.fromEnvironment("SERVER_NAME", "seagull");
+    // Name of this server to pass to user-api when getting a server token
+    serverName: config.fromEnvironment("SERVER_NAME", "seagull"),
 
-  // The secret to use when getting a server token from user-api
-  env.userApi.serverSecret = config.fromEnvironment("SERVER_SECRET");
+    // The secret to use when getting a server token from user-api
+    serverSecret: config.fromEnvironment("SERVER_SECRET")
+  };
 
-  env.discovery = {};
-  // The host to connect to for discovery
-  env.discovery.host = config.fromEnvironment('DISCOVERY_HOST');
+  env.discovery = {
+    // The host to connect to for discovery
+    host: config.fromEnvironment('DISCOVERY_HOST')
+  };
 
   // The service name to publish on discovery
   env.serviceName = config.fromEnvironment('SERVICE_NAME');
