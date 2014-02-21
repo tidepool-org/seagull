@@ -62,7 +62,7 @@ module.exports = (function() {
 
   env.userApi = {
     // Name of the hakken service for user-api discovery
-    serviceSpec: config.fromEnvironment("USER_API_SERVICE"),
+    serviceSpec: JSON.parse(config.fromEnvironment("USER_API_SERVICE")),
 
     // Name of this server to pass to user-api when getting a server token
     serverName: config.fromEnvironment("SERVER_NAME", "seagull"),
