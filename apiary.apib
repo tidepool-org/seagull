@@ -11,7 +11,7 @@ Seagull stores metadata about users.
 Initially, it just stores blobs of JSON bound to a user ID and a collection name, but the intent is that said blobs will have specific, 
 versionable format types that will be registered with the API and enforced by it.
 
-A collection is the name for a block of related data. Currently, we only support previously known collections. But someday we'll support the concept of a collection registry with a registered and enforced schema for each.
+A collection is the name for a block of related data. Currently, we only support previously known collections (at the moment, supported collections are "groups" and "profile", and "private" acts like a collection with special semantics. Someday we'll support the concept of a collection registry with a registered and enforced schema for each.
 
 Please see the [data documentation](http://tidepool-org.github.io/ServerDataOrganization.html)
 for further details on the data format. 
@@ -32,7 +32,7 @@ We follow many of the usual RESTful guidelines.
    * Read is done with GET. If not found, 404. If found, result is 200 with the record in the body.
    * DELETE currently checks credentials, THEN returns 501 (unimplemented). We don't want to be deleting customer data without having a solid understanding 
    of why we're doing it and how to do it safely. In the short term, we just disallow it. But in the long term, we should let people 
-   make their data go away if they really want it to. Successful DELETE returns a 204 (no data to delete)
+   make their data go away if they really want it to. Successful DELETE returns a 204 (no content)
 
 
 
@@ -43,7 +43,7 @@ We follow many of the usual RESTful guidelines.
 The intent is that metadata will NOT include demographic information -- that will be found in a separate endpoint managed through the
 /metadata/private/patient id/hash pair. But for the pilot, we're going to store metadata in this database. 
 
-The schema we will use for the pilot is as follows:
+The schema we will use for the pilot for the "profile" collection is as follows:
 
 ```
             {

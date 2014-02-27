@@ -81,7 +81,7 @@ describe('seagull', function () {
 
   // GET /collections -- returns all the valid collection names
 
-  it('GET /collections should respond with 200, profile', function (done) {
+  it('GET /collections should respond with 200', function (done) {
     supertest
       .get('/collections')
       .expect(200)
