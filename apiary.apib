@@ -11,7 +11,7 @@ Seagull stores metadata about users.
 Initially, it just stores blobs of JSON bound to a user ID and a collection name, but the intent is that said blobs will have specific, 
 versionable format types that will be registered with the API and enforced by it.
 
-A collection is the name for a block of related data. Currently, we only support previously known collections (at the moment, supported collections are "groups" and "profile", and "private" acts like a collection with special semantics. Someday we'll support the concept of a collection registry with a registered and enforced schema for each.
+A collection is the name for a block of related data. Currently, we only support previously known collections. But someday we'll support the concept of a collection registry with a registered and enforced schema for each.
 
 Please see the [data documentation](http://tidepool-org.github.io/ServerDataOrganization.html)
 for further details on the data format. 
@@ -32,7 +32,7 @@ We follow many of the usual RESTful guidelines.
    * Read is done with GET. If not found, 404. If found, result is 200 with the record in the body.
    * DELETE currently checks credentials, THEN returns 501 (unimplemented). We don't want to be deleting customer data without having a solid understanding 
    of why we're doing it and how to do it safely. In the short term, we just disallow it. But in the long term, we should let people 
-   make their data go away if they really want it to. Successful DELETE returns a 204 (no content)
+   make their data go away if they really want it to. Successful DELETE returns a 204 (no data to delete)
 
 
 
@@ -43,7 +43,7 @@ We follow many of the usual RESTful guidelines.
 The intent is that metadata will NOT include demographic information -- that will be found in a separate endpoint managed through the
 /metadata/private/patient id/hash pair. But for the pilot, we're going to store metadata in this database. 
 
-The schema we will use for the pilot for the "profile" collection is as follows:
+The schema we will use for the pilot is as follows:
 
 ```
             {
@@ -103,7 +103,7 @@ Someday this will also return the definitions of schema for the collections. But
 
 The main metadata block of information is managed here. Groups and Private have special endpoints.
 
-### Create or update a metadata collection (also works with PUT) [POST]
+### Create or update a metadata collection - also works with PUT [POST]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types.
     + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
@@ -153,7 +153,7 @@ The main metadata block of information is managed here. Groups and Private have 
 + Response 404
 
 
-### Remove a metadata collection (NOT IMPLEMENTED) [DELETE]
+### Remove a metadata collection --NOT IMPLEMENTED-- [DELETE]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types. 
     + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
@@ -203,7 +203,7 @@ DELETE is spec'd but not implemented yet.
 
 
 
-### Remove a group record (NOT IMPLEMENTED) [DELETE]
+### Remove a group record --NOT IMPLEMENTED-- [DELETE]
 + Parameters
     + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
     + name (required, string, `sandcastle`) ... The name of the private record. Any name is legal. Currently defined are patient, sandcastle.
@@ -214,3 +214,35 @@ DELETE is spec'd but not implemented yet.
             x-tidepool-session-token : 23sadf87.123840.aasd90JKj
 
 + Response 501
+
+## User Data access for other users [/otheruser?users={useridlist}]
+
+This call is used to fetch information about other users, but it only works if the users are either in your care team or your patient group. 
+The return from this call is always 200 if the request is properly formatted, and the response body will indicate on a per-id basis
+whether or not the data was available.
+
+### Retrieve public userdata for one or more related users [GET]
++ Parameters
+    + useridlist (required, array of string, `a3a312bd,ac9312cf`) ... The set of userids for whom this data is being requested. 
+
++ Request
+    + Headers
+
+            x-tidepool-session-token : 23sadf87.123840.aasd90JKj
+
++ Response 200 (application/json)
+
+            [
+                {
+                    "id": "a3a312bd",
+                    "fullname": "Jonathan Livingston", 
+                    "shortname": "Jonny", 
+                    "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
+                    "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
+                },
+                {
+                    "id": "ac9312cf",
+                    "error": "Userid not accessible or not valid"
+                }
+            ]
+
