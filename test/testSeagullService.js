@@ -318,15 +318,27 @@ describe('seagull', function () {
     });
   });
 
-  describe('/otheruser', function () {
+  describe('/otheruser/publicinfo', function () {
+    var sally = { userid: 'sally', isserver: true };
+    var bobby = { userid: 'bobby', isserver: false };
     it('should return 400 on GET with no query', function (done) {
-      supertest.get('/otheruser')
+      setupTokenAndMeta(sally);
+      supertest.get('/otheruser/publicinfo')
         .expect(400, done);
     });
 
-    it('should return 200 on GET and an error reply with a junk query', function (done) {
+    it('should return 400 on GET of a valid query with a server token', function (done) {
+      setupTokenAndMeta(sally);
+      supertest.get('/otheruser/publicinfo?users=12345,23456')
+        .set(sessionTokenHeader, 'sally')
+        .expect(400, done);
+    });
+
+    it('should return 200 on GET and an error reply with a valid query with user token', function (done) {
+      setupTokenAndMeta(bobby);
       supertest
-        .get('/otheruser?users=12345,23456')
+        .get('/otheruser/publicinfo?users=12345,23456')
+        .set(sessionTokenHeader, 'bobby')
         .expect(200)
         .end(function (err, res) {
           expect(err).to.not.exist;
@@ -335,13 +347,16 @@ describe('seagull', function () {
           expect(res[0].error).to.exist;
           expect(res[1].id).to.equal('23456');
           expect(res[1].error).to.exist;
+          expectTokenAndMeta('bobby');
           done();
         });
     });
-    
+
     it('should return 200 on GET and an good reply with a real query', function (done) {
+      setupTokenAndMeta(bobby);
       supertest
-        .get('/otheruser?users=billy')
+        .get('/otheruser/publicinfo?users=billy')
+        .set(sessionTokenHeader, 'bobby')
         .expect(200)
         .end(function (err, res) {
           expect(err).to.not.exist;
@@ -349,9 +364,11 @@ describe('seagull', function () {
           expect(res[0].id).to.equal('billy');
           expect(res[0].name).to.equal('Testy');
           expect(res[0].bio).to.exist;
+          expectTokenAndMeta('bobby');
           done();
         });
     });
   });
+
 });
 
