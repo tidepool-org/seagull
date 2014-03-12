@@ -218,7 +218,7 @@ DELETE is spec'd but not implemented yet.
 ## User Data access for other users [/otheruser/publicinfo?users={useridlist}]
 
 This call is used to fetch information about other users, but it only works if the users are either in your care team or your patient group. 
-The return from this call is always 200 if the request is properly formatted, and the response body will indicate on a per-id basis
+The return from this call is always 200 if the request is proper, and the response body will indicate on a per-id basis
 whether or not the data was available. The session token MUST be a user token (not a server token).
 
 ### Retrieve public userdata for one or more related users [GET]
@@ -245,6 +245,8 @@ whether or not the data was available. The session token MUST be a user token (n
                     "error": "Userid not accessible or not valid"
                 }
             ]
+
++ Response 401
 
 ## User Data access for other users [/otheruser/inmygroups?users={useridlist}]
 
