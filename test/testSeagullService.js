@@ -352,7 +352,7 @@ describe('seagull', function () {
       setupTokenAndMeta(bobby);
       var request = sinon.stub(userApiClient, 'getUserInfo');
       request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
-      request.withArgs('23456', sinon.match.func).callsArgWith(1, {statuscode: 500, message: "error"}, null);
+      request.withArgs('23456', sinon.match.func).callsArgWith(1, {statuscode: 500, message: 'error'}, null);
       supertest
         .get('/publicinfo?users=12345,23456')
         .set(sessionTokenHeader, 'bobby')
