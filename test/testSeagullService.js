@@ -38,7 +38,7 @@ var env = {
   logger: { error: console.log, warn: console.log, info: console.log }
 };
 
-var userApiClient = mockableObject.make('checkToken', 'getMetaPair', 'getAnonymousPair');
+var userApiClient = mockableObject.make('checkToken', 'getMetaPair', 'getAnonymousPair', 'getUserInfo');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
 var seagull = require('../lib/seagullService.js')(dbmongo, userApiClient, env);
@@ -318,53 +318,72 @@ describe('seagull', function () {
     });
   });
 
-  describe('/otheruser/publicinfo', function () {
+  describe('/publicinfo', function () {
     var sally = { userid: 'sally', isserver: true };
     var bobby = { userid: 'bobby', isserver: false };
+
+    beforeEach(function () {
+      mockableObject.reset(userApiClient);
+    });
+
+
+
     it('should return 400 on GET with no query', function (done) {
       setupTokenAndMeta(sally);
-      supertest.get('/otheruser/publicinfo')
+      var request = sinon.stub(userApiClient, 'getUserInfo');
+      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
+      request.withArgs('23456', sinon.match.func).callsArgWith(1, null, null);
+      supertest.get('/publicinfo')
+        .set(sessionTokenHeader, 'sally')
         .expect(400, done);
     });
 
     it('should return 400 on GET of a valid query with a server token', function (done) {
       setupTokenAndMeta(sally);
-      supertest.get('/otheruser/publicinfo?users=12345,23456')
+      var request = sinon.stub(userApiClient, 'getUserInfo');
+      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
+      request.withArgs('23456', sinon.match.func).callsArgWith(1, null, null);
+      supertest.get('/publicinfo?users=12345,23456')
         .set(sessionTokenHeader, 'sally')
         .expect(400, done);
     });
 
     it('should return 200 on GET and an error reply with a valid query with user token', function (done) {
       setupTokenAndMeta(bobby);
+      var request = sinon.stub(userApiClient, 'getUserInfo');
+      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
+      request.withArgs('23456', sinon.match.func).callsArgWith(1, {statuscode: 500, message: "error"}, null);
       supertest
-        .get('/otheruser/publicinfo?users=12345,23456')
+        .get('/publicinfo?users=12345,23456')
         .set(sessionTokenHeader, 'bobby')
         .expect(200)
         .end(function (err, res) {
+          console.log(res.body);
           expect(err).to.not.exist;
-          expect(res).to.have.lengthOf(2);
-          expect(res[0].id).to.equal('12345');
-          expect(res[0].error).to.exist;
-          expect(res[1].id).to.equal('23456');
-          expect(res[1].error).to.exist;
-          expectTokenAndMeta('bobby');
+          expect(res.body).to.have.lengthOf(2);
+          expect(res.body[0].userid).to.equal('12345');
+          expect(res.body[0].error).to.not.exist;
+          expect(res.body[1].userid).to.equal('23456');
+          expect(res.body[1].error).to.exist;
           done();
         });
     });
 
-    it('should return 200 on GET and an good reply with a real query', function (done) {
+    it('should return 200 on GET and a good reply with a real query', function (done) {
       setupTokenAndMeta(bobby);
+      var request = sinon.stub(userApiClient, 'getUserInfo');
+      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
+      request.withArgs('23456', sinon.match.func).callsArgWith(1, null, null);
       supertest
-        .get('/otheruser/publicinfo?users=billy')
+        .get('/publicinfo?users=12345')
         .set(sessionTokenHeader, 'bobby')
         .expect(200)
         .end(function (err, res) {
           expect(err).to.not.exist;
-          expect(res).to.have.lengthOf(1);
-          expect(res[0].id).to.equal('billy');
-          expect(res[0].name).to.equal('Testy');
-          expect(res[0].bio).to.exist;
-          expectTokenAndMeta('bobby');
+          expect(res.body).to.have.lengthOf(1);
+          expect(res.body[0].userid).to.equal('12345');
+          expect(res.body[0].username).to.equal('a');
+          expect(res.body[0].emails).to.exist;
           done();
         });
     });

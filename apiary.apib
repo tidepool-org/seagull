@@ -215,7 +215,7 @@ DELETE is spec'd but not implemented yet.
 
 + Response 501
 
-## User Data access for other users [/otheruser/publicinfo?users={useridlist}]
+## User Data access for other users [/publicinfo?users={useridlist}]
 
 This call is used to fetch information about other users, but it only works if the users are either in your care team or your patient group. 
 The return from this call is always 200 if the request is proper, and the response body will indicate on a per-id basis
@@ -248,7 +248,7 @@ whether or not the data was available. The session token MUST be a user token (n
 
 + Response 401
 
-## User Data access for other users [/otheruser/inmygroups?users={useridlist}]
+## User Data access for other users [/inmygroups?users={useridlist}]
 
 This call is used to fetch information about which groups a set of users is in, relative to the logged-in user. Every ID is returned
 even if invalid or unauthorized (these will return an empty groups list). 
