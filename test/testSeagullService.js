@@ -331,7 +331,7 @@ describe('seagull', function () {
     it('should return 400 on GET with no query', function (done) {
       setupTokenAndMeta(sally);
       var request = sinon.stub(userApiClient, 'getUserInfo');
-      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
+      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {userid: '12345', username: 'a', emails: ['a@b']});
       request.withArgs('23456', sinon.match.func).callsArgWith(1, null, null);
       supertest.get('/publicinfo')
         .set(sessionTokenHeader, 'sally')
@@ -341,7 +341,7 @@ describe('seagull', function () {
     it('should return 400 on GET of a valid query with a server token', function (done) {
       setupTokenAndMeta(sally);
       var request = sinon.stub(userApiClient, 'getUserInfo');
-      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
+      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {userid: '12345', username: 'a', emails: ['a@b']});
       request.withArgs('23456', sinon.match.func).callsArgWith(1, null, null);
       supertest.get('/publicinfo?users=12345,23456')
         .set(sessionTokenHeader, 'sally')
@@ -351,7 +351,7 @@ describe('seagull', function () {
     it('should return 200 on GET and an error reply with a valid query with user token', function (done) {
       setupTokenAndMeta(bobby);
       var request = sinon.stub(userApiClient, 'getUserInfo');
-      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
+      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {userid: '12345', username: 'a', emails: ['a@b']});
       request.withArgs('23456', sinon.match.func).callsArgWith(1, {statuscode: 500, message: 'error'}, null);
       supertest
         .get('/publicinfo?users=12345,23456')
@@ -372,7 +372,7 @@ describe('seagull', function () {
     it('should return 200 on GET and a good reply with a real query', function (done) {
       setupTokenAndMeta(bobby);
       var request = sinon.stub(userApiClient, 'getUserInfo');
-      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {body: {userid: '12345', username: 'a', emails: ['a@b']}});
+      request.withArgs('12345', sinon.match.func).callsArgWith(1, null, {userid: '12345', username: 'a', emails: ['a@b']});
       request.withArgs('23456', sinon.match.func).callsArgWith(1, null, null);
       supertest
         .get('/publicinfo?users=12345')
