@@ -39,9 +39,10 @@ var env = {
 };
 
 var userApiClient = mockableObject.make('checkToken', 'getMetaPair', 'getAnonymousPair');
+var amardaClient = mockableObject.make('getGroupsAMemberOf');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
-var seagull = require('../lib/seagullService.js')(dbmongo, userApiClient, env);
+var seagull = require('../lib/seagullService.js')(dbmongo, userApiClient, env, amardaClient);
 var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull', function () {
@@ -61,6 +62,7 @@ describe('seagull', function () {
 
   beforeEach(function () {
     mockableObject.reset(userApiClient);
+    mockableObject.reset(amardaClient);
   });
 
   it('/status should respond with 200', function (done) {
