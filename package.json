@@ -1,6 +1,6 @@
 {
   "name": "seagull",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "API for managing user metadata.",
   "main": "lib/index.js",
   "directories": {
@@ -22,7 +22,8 @@
     "mongojs": "0.9.10",
     "restify": "2.6.0",
     "request": "2.33.0",
-    "user-api-client": "0.1.4"
+    "user-api-client": "0.1.4",
+    "tidepool-armada-client": "0.0.1"
   },
   "devDependencies": {
     "grunt": "0.4.1",
