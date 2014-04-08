@@ -60,6 +60,12 @@ module.exports = (function() {
   // Configurable salt for password encryption
   env.saltDeploy = config.fromEnvironment('SALT_DEPLOY');
 
+  env.metrics = {
+    // The config object to discover highwater (the metrics API).  
+    // This is just passed through to hakken.watchFromConfig()
+    serviceSpec: JSON.parse(config.fromEnvironment('METRICS_SERVICE'))
+  };
+
   env.userApi = {
     // The config object to discover user-api.  This is just passed through to hakken.watchFromConfig()
     serviceSpec: JSON.parse(config.fromEnvironment('USER_API_SERVICE')),
