@@ -319,41 +319,5 @@ describe('seagull', function () {
         .expect(404, done);
     });
   });
-
-  describe('/otheruser', function () {
-    it('should return 400 on GET with no query', function (done) {
-      supertest.get('/otheruser')
-        .expect(400, done);
-    });
-
-    it('should return 200 on GET and an error reply with a junk query', function (done) {
-      supertest
-        .get('/otheruser?users=12345,23456')
-        .expect(200)
-        .end(function (err, res) {
-          expect(err).to.not.exist;
-          expect(res).to.have.lengthOf(2);
-          expect(res[0].id).to.equal('12345');
-          expect(res[0].error).to.exist;
-          expect(res[1].id).to.equal('23456');
-          expect(res[1].error).to.exist;
-          done();
-        });
-    });
-    
-    it('should return 200 on GET and an good reply with a real query', function (done) {
-      supertest
-        .get('/otheruser?users=billy')
-        .expect(200)
-        .end(function (err, res) {
-          expect(err).to.not.exist;
-          expect(res).to.have.lengthOf(1);
-          expect(res[0].id).to.equal('billy');
-          expect(res[0].name).to.equal('Testy');
-          expect(res[0].bio).to.exist;
-          done();
-        });
-    });
-  });
 });
 
