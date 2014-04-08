@@ -42,7 +42,7 @@ var userApiClient = mockableObject.make('checkToken', 'getMetaPair', 'getAnonymo
 var armadaClient = mockableObject.make('getGroupsAMemberOf');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
-var seagull = require('../lib/seagullService.js')(dbmongo, userApiClient, env, armadaClient);
+var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, armadaClient);
 var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull', function () {
