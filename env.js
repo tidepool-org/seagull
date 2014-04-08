@@ -16,8 +16,9 @@
 // not, you can obtain one from Tidepool Project at tidepool.org.
 // == BSD2 LICENSE ==
 
-var fs = require('fs');
+'use strict';
 
+var fs = require('fs');
 var config = require('amoeba').config;
 
 function maybeReplaceWithContentsOfFile(obj, field)
@@ -28,7 +29,6 @@ function maybeReplaceWithContentsOfFile(obj, field)
   }
 }
 
-'use strict';
 module.exports = (function() {
   var env = {};
 
@@ -60,20 +60,26 @@ module.exports = (function() {
   // Configurable salt for password encryption
   env.saltDeploy = config.fromEnvironment('SALT_DEPLOY');
 
+  env.metrics = {
+    // The config object to discover highwater (the metrics API).  
+    // This is just passed through to hakken.watchFromConfig()
+    serviceSpec: JSON.parse(config.fromEnvironment('METRICS_SERVICE'))
+  };
+
   env.userApi = {
     // The config object to discover user-api.  This is just passed through to hakken.watchFromConfig()
-    serviceSpec: JSON.parse(config.fromEnvironment("USER_API_SERVICE")),
+    serviceSpec: JSON.parse(config.fromEnvironment('USER_API_SERVICE')),
 
     // Name of this server to pass to user-api when getting a server token
-    serverName: config.fromEnvironment("SERVER_NAME", "seagull"),
+    serverName: config.fromEnvironment('SERVER_NAME', 'seagull'),
 
     // The secret to use when getting a server token from user-api
-    serverSecret: config.fromEnvironment("SERVER_SECRET")
+    serverSecret: config.fromEnvironment('SERVER_SECRET')
   };
 
   env.armada = {
     // The config object to discover armada.  This is just passed through to hakken.watchFromConfig()
-    serviceSpec: JSON.parse(config.fromEnvironment("ARMADA_SERVICE"))
+    serviceSpec: JSON.parse(config.fromEnvironment('ARMADA_SERVICE'))
   };
 
   env.discovery = {
