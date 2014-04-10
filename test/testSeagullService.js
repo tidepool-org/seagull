@@ -129,7 +129,7 @@ describe('seagull', function () {
 
     it('GET should create all required objects if they don\'t exist', function (done) {
       setupTokenAndMeta(sally);
-      sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(1, null, pair1);
+      sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(0, null, pair1);
       supertest
         .get('/sally/private/armada')
         .set(sessionTokenHeader, 'howdy')
@@ -140,14 +140,14 @@ describe('seagull', function () {
           expect(res.body).deep.equals(pair1);
           expectTokenAndMeta('howdy', sally);
           expect(userApiClient.getAnonymousPair).to.have.been.calledOnce;
-          expect(userApiClient.getAnonymousPair).to.have.been.calledWith(sally.userid, sinon.match.func);
+          expect(userApiClient.getAnonymousPair).to.have.been.calledWith(sinon.match.func);
           done();
         });
     });
 
     it('GET should create just the pair if it doesn\'t exist', function (done) {
       setupTokenAndMeta(sally);
-      sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(1, null, pair1);
+      sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(0, null, pair1);
       supertest
         .get('/sally/private/clamshell')
         .set(sessionTokenHeader, 'howdy')
@@ -158,7 +158,7 @@ describe('seagull', function () {
           expect(res.body).deep.equals(pair1);
           expectTokenAndMeta('howdy', sally);
           expect(userApiClient.getAnonymousPair).to.have.been.calledOnce;
-          expect(userApiClient.getAnonymousPair).to.have.been.calledWith(sally.userid, sinon.match.func);
+          expect(userApiClient.getAnonymousPair).to.have.been.calledWith(sinon.match.func);
           done();
         });
     });
@@ -194,7 +194,7 @@ describe('seagull', function () {
 
     it('GET should fail with a non-server token', function (done) {
       setupTokenAndMeta();
-      sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(1, null, pair1);
+      sinon.stub(userApiClient, 'getAnonymousPair').callsArgWith(0, null, pair1);
       supertest
         .get('/billy/private/armada')
         .set(sessionTokenHeader, 'howdy')
