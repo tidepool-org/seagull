@@ -22,7 +22,7 @@
     "mongojs": "0.9.10",
     "restify": "2.6.0",
     "request": "2.33.0",
-    "user-api-client": "0.2.1",
+    "user-api-client": "0.2.2",
     "tidepool-armada-client": "0.0.1"
   },
   "devDependencies": {
