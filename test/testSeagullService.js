@@ -39,11 +39,10 @@ var env = {
 };
 
 var userApiClient = mockableObject.make('checkToken', 'getMetaPair', 'getAnonymousPair');
-var armadaClient = mockableObject.make('getGroupsAMemberOf');
 var metrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
-var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, armadaClient, metrics);
+var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, metrics);
 var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull', function () {
@@ -63,7 +62,6 @@ describe('seagull', function () {
 
   beforeEach(function () {
     mockableObject.reset(userApiClient);
-    mockableObject.reset(armadaClient);
     mockableObject.reset(metrics);
     sinon.stub(metrics, 'postServer').callsArg(3);
     sinon.stub(metrics, 'postWithUser').callsArg(3);
