@@ -33,7 +33,7 @@
     "grunt-docco2": "0.1.2",
     "grunt-shell-spawn": "0.3.1",
     "jshint": "2.4.3",
-    "salinity": "0.0.1",
+    "salinity": "0.0.6",
     "supertest": "0.15.0"
   }
 }
