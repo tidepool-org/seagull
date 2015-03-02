@@ -16,7 +16,7 @@
   "dependencies": {
     "amoeba": "0.0.8",
     "bunyan": "0.22.1",
-    "crypto-js": "3.1.2-2",
+    "crypto-js": "3.1.2-5",
     "hakken": "0.1.4",
     "lodash": "3.3.1",
     "mongojs": "0.18.2",
