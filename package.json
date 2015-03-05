@@ -17,7 +17,7 @@
     "amoeba": "0.1.2",
     "bunyan": "1.3.4",
     "crypto-js": "3.1.2-5",
-    "hakken": "0.1.4",
+    "hakken": "0.1.6",
     "lodash": "3.3.1",
     "mongojs": "0.18.2",
     "restify": "2.8.5",
