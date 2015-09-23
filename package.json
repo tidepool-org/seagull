@@ -34,7 +34,7 @@
     "grunt-shell-spawn": "0.3.1",
     "jshint": "2.6.3",
     "mocha": "2.2.5",
-    "salinity": "0.0.7",
+    "salinity": "0.0.8",
     "supertest": "0.15.0"
   }
 }
