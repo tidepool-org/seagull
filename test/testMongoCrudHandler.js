@@ -1,15 +1,15 @@
 /*
  == BSD2 LICENSE ==
  Copyright (c) 2014, Tidepool Project
- 
+
  This program is free software; you can redistribute it and/or modify it under
  the terms of the associated License, which is identical to the BSD 2-Clause
  License as published by the Open Source Initiative at opensource.org.
- 
+
  This program is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE. See the License for more details.
- 
+
  You should have received a copy of the License along with this program; if
  not, you can obtain one from Tidepool Project at tidepool.org.
  == BSD2 LICENSE ==
@@ -190,10 +190,11 @@ describe('metadb:', function () {
       });
     });
 
-    it('should fail to fetch if the password is bad', function (done) {
+    it('should be able to fetch even if the hash is bad as it is ignored', function (done) {
       var up = { id: userpair1.id, hash: userpair2.hash };
       metadb.getDoc(up, function (err, result) {
-        shouldFail(err, result, 401);
+        shouldSucceed(err, result, 200);
+        expect(result.detail).to.deep.equal(metatest1);
         done();
       });
     });
