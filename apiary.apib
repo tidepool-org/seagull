@@ -1,20 +1,20 @@
 FORMAT: 1A
-HOST: http://api.tidepool.io
+HOST: http://api.tidepool.org
 
 # Tidepool Seagull
 **"An archive is a dump without the seagulls."** -- *Perfesser Shoe, 1990 (McNally)*
 
 ## Overview
 
-Seagull stores metadata about users. 
+Seagull stores metadata about users.
 
-Initially, it just stores blobs of JSON bound to a user ID and a collection name, but the intent is that said blobs will have specific, 
+Initially, it just stores blobs of JSON bound to a user ID and a collection name, but the intent is that said blobs will have specific,
 versionable format types that will be registered with the API and enforced by it.
 
 A collection is the name for a block of related data. Currently, we only support previously known collections. But someday we'll support the concept of a collection registry with a registered and enforced schema for each.
 
 Please see the [data documentation](http://tidepool-org.github.io/ServerDataOrganization.html)
-for further details on the data format. 
+for further details on the data format.
 
 General philosophy / notes:
 
@@ -28,10 +28,10 @@ We follow many of the usual RESTful guidelines.
 * Our CRUD semantics:
    * POST and PUT are identical; if a record doesn't exist, it is inserted by both verbs.
    * POST and PUT do partial updates; if you POST ```{ c: 4, d: 4 }``` to a body already containing ```{ a: 1, b: 2, c: 3 }``` you will get ```{ a: 1, b: 2, c: 4, d: 4 }```
-   * If a PUT or POST was successful, you get a 200 and the created record is returned in the body. 
+   * If a PUT or POST was successful, you get a 200 and the created record is returned in the body.
    * Read is done with GET. If not found, 404. If found, result is 200 with the record in the body.
-   * DELETE currently checks credentials, THEN returns 501 (unimplemented). We don't want to be deleting customer data without having a solid understanding 
-   of why we're doing it and how to do it safely. In the short term, we just disallow it. But in the long term, we should let people 
+   * DELETE currently checks credentials, THEN returns 501 (unimplemented). We don't want to be deleting customer data without having a solid understanding
+   of why we're doing it and how to do it safely. In the short term, we just disallow it. But in the long term, we should let people
    make their data go away if they really want it to. Successful DELETE returns a 204 (no data to delete)
 
 
@@ -41,14 +41,14 @@ We follow many of the usual RESTful guidelines.
 ## Notes for the blip pilot study release
 
 The intent is that metadata will NOT include demographic information -- that will be found in a separate endpoint managed through the
-/metadata/private/patient id/hash pair. But for the pilot, we're going to store metadata in this database. 
+/metadata/private/patient id/hash pair. But for the pilot, we're going to store metadata in this database.
 
 The schema we will use for the pilot is as follows:
 
 ```
             {
-                "fullname": "Jonathan Livingston", 
-                "shortname": "Jonny", 
+                "fullname": "Jonathan Livingston",
+                "shortname": "Jonny",
                 "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
                 "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
                 "patient": {
@@ -64,7 +64,7 @@ The schema we will use for the pilot is as follows:
                         gender: "male",
                     }
                 }
-            }    
+            }
 ```
 
 All demographic fields are optional and should support a null value or a missing field.
@@ -81,7 +81,7 @@ Stores and retrieves blobs of JSON.
 
 ## Metadata Collection [/metadata/collections]
 ### Get permissible collections [GET]
-Retrieves the set of allowed collection names. These are basically subdocuments from the top level document. 
+Retrieves the set of allowed collection names. These are basically subdocuments from the top level document.
 
 Someday this will also return the definitions of schema for the collections. But not yet.
 
@@ -106,12 +106,12 @@ The main metadata block of information is managed here. Groups and Private have 
 ### Create or update a metadata collection - also works with PUT [POST]
 + Parameters
     + collection (required, string, `profile`) ... A collection type from one of the registered types.
-    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored.
 
 + Request
 
-    Body should contain the fields that should be updated. (Someday, the field names will be enforced by a schema). 
-    Omitting a field will not remove it -- to delete a field, you must set its value to null. 
+    Body should contain the fields that should be updated. (Someday, the field names will be enforced by a schema).
+    Omitting a field will not remove it -- to delete a field, you must set its value to null.
 
     + Headers
 
@@ -120,11 +120,11 @@ The main metadata block of information is managed here. Groups and Private have 
     + Body
 
             {
-                "fullname": "Jonathan Livingston", 
-                "shortname": "Jonny", 
+                "fullname": "Jonathan Livingston",
+                "shortname": "Jonny",
                 "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
                 "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
-            }    
+            }
 
 + Response 200
 
@@ -132,8 +132,8 @@ The main metadata block of information is managed here. Groups and Private have 
 
 ### Retrieve a metadata collection [GET]
 + Parameters
-    + collection (required, string, `profile`) ... A collection type from one of the registered types. 
-    + userid (required, string, `metaid`) ... The userid for the user for whom this data is being stored. 
+    + collection (required, string, `profile`) ... A collection type from one of the registered types.
+    + userid (required, string, `metaid`) ... The userid for the user for whom this data is being stored.
 
 + Request
     + Headers
@@ -144,19 +144,19 @@ The main metadata block of information is managed here. Groups and Private have 
 + Response 200 (application/json)
 
             {
-                "fullname": "Jonathan Livingston", 
-                "shortname": "Jonny", 
+                "fullname": "Jonathan Livingston",
+                "shortname": "Jonny",
                 "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
                 "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
-            }    
+            }
 
 + Response 404
 
 
 ### Remove a metadata collection --NOT IMPLEMENTED-- [DELETE]
 + Parameters
-    + collection (required, string, `profile`) ... A collection type from one of the registered types. 
-    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
+    + collection (required, string, `profile`) ... A collection type from one of the registered types.
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored.
 
 + Request
     + Headers
@@ -174,12 +174,12 @@ The main metadata block of information is managed here. Groups and Private have 
 
 If you get a pair that does not already exist, this call will create one and return it. If it already exists, you'll get that pair back again.
 
-DELETE is spec'd but not implemented yet. 
+DELETE is spec'd but not implemented yet.
 
 
 ### Retrieve a private pair [GET]
 + Parameters
-    + userid (required, string, `metaid`) ... The userid for the user for whom this data is being stored. 
+    + userid (required, string, `metaid`) ... The userid for the user for whom this data is being stored.
     + name (required, string, `sandcastle`) ... The name of the private pair. Any name is legal. Currently defined are patient, sandcastle.
 
 + Request
@@ -196,7 +196,7 @@ DELETE is spec'd but not implemented yet.
             {
                 id: "2423412",
                 hash: "69fd718d9aa9a487e6142e21"
-            }    
+            }
 
 
 + Response 404
@@ -205,7 +205,7 @@ DELETE is spec'd but not implemented yet.
 
 ### Remove a group record --NOT IMPLEMENTED-- [DELETE]
 + Parameters
-    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored. 
+    + userid (required, string, `userid`) ... The userid for the user for whom this data is being stored.
     + name (required, string, `sandcastle`) ... The name of the private record. Any name is legal. Currently defined are patient, sandcastle.
 
 + Request
@@ -217,13 +217,13 @@ DELETE is spec'd but not implemented yet.
 
 ## User Data access for other users [/otheruser/publicinfo?users={useridlist}]
 
-This call is used to fetch information about other users, but it only works if the users are either in your care team or your patient group. 
+This call is used to fetch information about other users, but it only works if the users are either in your care team or your patient group.
 The return from this call is always 200 if the request is proper, and the response body will indicate on a per-id basis
 whether or not the data was available. The session token MUST be a user token (not a server token).
 
 ### Retrieve public userdata for one or more related users [GET]
 + Parameters
-    + useridlist (required, array of string, `a3a312bd,ac9312cf`) ... The set of userids for whom this data is being requested. 
+    + useridlist (required, array of string, `a3a312bd,ac9312cf`) ... The set of userids for whom this data is being requested.
 
 + Request
     + Headers
@@ -235,8 +235,8 @@ whether or not the data was available. The session token MUST be a user token (n
             [
                 {
                     "id": "a3a312bd",
-                    "fullname": "Jonathan Livingston", 
-                    "shortname": "Jonny", 
+                    "fullname": "Jonathan Livingston",
+                    "shortname": "Jonny",
                     "publicbio": "I fly far and fast. T1D is something I have, not who I am.",
                     "image_url": "https://files.tidepool.io/87263b8476fad2836486af125/me.jpg",
                 },
@@ -251,12 +251,12 @@ whether or not the data was available. The session token MUST be a user token (n
 ## User Data access for other users [/otheruser/inmygroups?users={useridlist}]
 
 This call is used to fetch information about which groups a set of users is in, relative to the logged-in user. Every ID is returned
-even if invalid or unauthorized (these will return an empty groups list). 
+even if invalid or unauthorized (these will return an empty groups list).
 The session token MUST be a user token (not a server token).
 
 ### Retrieve public userdata for one or more related users [GET]
 + Parameters
-    + useridlist (required, array of string, `a3a312bd,ac9312cf`) ... The set of userids for whom this data is being requested. 
+    + useridlist (required, array of string, `a3a312bd,ac9312cf`) ... The set of userids for whom this data is being requested.
 
 + Request
     + Headers
@@ -275,4 +275,3 @@ The session token MUST be a user token (not a server token).
                     "groups": []
                 }
             ]
-
