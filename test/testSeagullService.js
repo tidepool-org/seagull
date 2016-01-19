@@ -39,10 +39,11 @@ var env = {
 };
 
 var userApiClient = mockableObject.make('checkToken', 'getMetaPair', 'getAnonymousPair');
+var gatekeeperClient = mockableObject.make('userInGroup');
 var metrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
-var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, metrics);
+var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, metrics, gatekeeperClient);
 var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull', function () {
