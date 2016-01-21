@@ -43,14 +43,16 @@ var gatekeeperClient = mockableObject.make('userInGroup');
 var metrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
-var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, metrics, gatekeeperClient);
+var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, gatekeeperClient, metrics);
 var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull', function () {
 
   before(function (done) {
+    console.log('## here we go!');
     dbmongo._wipeTheEntireDatabase(function (err) {
       if (err != null) {
+        console.log('## oh no! ',err);
         throw err;
       }
       seagull.start(done);
