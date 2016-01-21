@@ -49,10 +49,8 @@ var supertest = require('supertest')('http://localhost:' + env.httpPort);
 describe('seagull', function () {
 
   before(function (done) {
-    console.log('## here we go!');
     dbmongo._wipeTheEntireDatabase(function (err) {
       if (err != null) {
-        console.log('## oh no! ',err);
         throw err;
       }
       seagull.start(done);
