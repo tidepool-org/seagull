@@ -78,7 +78,7 @@ describe('getMetaPair:', function () {
 
   describe('given a no token', function () {
     it('should return false', function () {
-      setupStubs({statusCode:401, message:'No Token'},inGroups);
+      setupStubs({statusCode:401, message:'No Token'}, inGroups);
 
       var done = function(result){
         expect(result).to.be.false;
@@ -129,7 +129,7 @@ describe('getMetaPair:', function () {
       setupStubs(emptyResponse, emptyGroups);
 
       var done = function(result){
-        expect(result).to.be.empty;
+       expect(result).to.be.a('undefined');
       };
 
       var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'sally'}};
@@ -140,7 +140,7 @@ describe('getMetaPair:', function () {
       setupStubs(emptyResponse, emptyGroups);
 
       var done = function(result){
-        expect(result).to.be.empty;
+        expect(result).to.be.a('undefined');
       };
 
       var req = { method:'PUT', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'sally'}};
@@ -151,7 +151,7 @@ describe('getMetaPair:', function () {
       setupStubs(emptyResponse, emptyGroups);
 
       var done = function(result){
-        expect(result).to.be.empty;
+        expect(result).to.be.a('undefined');
       };
 
       var req = { method:'POST', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'sally'}};
@@ -162,7 +162,7 @@ describe('getMetaPair:', function () {
       setupStubs(emptyResponse, emptyGroups);
 
       var done = function(result){
-        expect(result).to.be.empty;
+        expect(result).to.be.a('undefined');
       };
 
       var req = { method:'DEL', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'sally'}};
@@ -176,7 +176,7 @@ describe('getMetaPair:', function () {
       setupStubs(emptyResponse, emptyGroups);
 
       var done = function(result){
-        expect(result).to.be.false;
+        expect(result).to.equal(false);
       };
 
       var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
@@ -187,40 +187,40 @@ describe('getMetaPair:', function () {
       setupStubs(emptyResponse, inGroups);
 
       var done = function(result){
-        expect(result).to.be.empty;
+        expect(result).to.equal(false);
       };
 
       var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
       expect(getMeta(req, res, done));
     });
-    it('should be valid when in group and POST', function () {
+    it('should be invalid when in group and POST', function () {
       setupStubs(emptyResponse, inGroups);
 
       var done = function(result){
-        expect(result).to.be.empty;
+        expect(result).to.equal(false);
       };
 
       var req = { method:'POST', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
       expect(getMeta(req, res, done));
     });
-    it('should be valid when in group and PUT', function () {
+    it('should be invalid when in group and PUT', function () {
       setupStubs(emptyResponse, inGroups);
 
       var done = function(result){
-        expect(result).to.be.empty;
+        expect(result).to.equal(false);
       };
 
       var req = { method:'PUT', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
       expect(getMeta(req, res, done));
     });
-    it('should be valid when in group and DEL', function () {
+    it('should be invalid when in group and DEL', function () {
       setupStubs(emptyResponse, inGroups);
 
       var done = function(result){
-        expect(result).to.be.empty;
+        expect(result).to.equal(false);
       };
 
       var req = { method:'DEL', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
