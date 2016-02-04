@@ -50,25 +50,28 @@ describe('getMetaPair:', function () {
 
   var res = mockableObject.make('send');
   var req = {};
-  var emptyGroups = {};
-  var inGroups = {view:{}};
   var emptyResponse = {};
 
-  function userInGroupFunc(err, result){
-    return function(err, result) {};
-  }
 
-  function setupStubs(response, groups, groupsErr, groupFunc) {
+  function setupStubs(response) {
 
-    groupFunc = groupFunc || userInGroupFunc;
 
     mockableObject.reset(gatekeeperClient);
     mockableObject.reset(userApiClient);
     mockableObject.reset(res);
 
     sinon.stub(res, 'send').returns(response);
-    sinon.stub(gatekeeperClient, 'userInGroup', groupFunc(groupsErr, groups));
-    sinon.stub(userApiClient, 'getMetaPair').callsArgWith(1, null, { name: 'meta', id: 'metaId', 'hash': 'abcd' });
+
+    var userInGroup = sinon.stub(gatekeeperClient, 'userInGroup');
+    userInGroup.withArgs('sally', 'bob').returns('bob');
+    userInGroup.withArgs('sally', 'sally').returns('sally');
+    userInGroup.withArgs('sally', 'other').returns('other');
+
+    var getMetaPair = sinon.stub(userApiClient, 'getMetaPair');
+
+    getMetaPair.withArgs('bob').returns('bob');
+    getMetaPair.withArgs('sally').returns('sally');
+    getMetaPair.withArgs('other').returns(false);
   }
 
   it('should exist', function () {
@@ -78,154 +81,134 @@ describe('getMetaPair:', function () {
 
   describe('given a no token', function () {
     it('should return false', function () {
-      setupStubs({statusCode:401, message:'No Token'}, inGroups);
+      setupStubs({statusCode:401, message:'No Token'});
 
-      var done = function(result){
+      expect(getMeta(req,res, function(result){
         expect(result).to.be.false;
-      };
+      }));
 
-      expect(getMeta(req,res, done));
     });
   });
 
   describe('given a server token', function () {
     it('should return empty', function () {
-      setupStubs(emptyResponse, emptyGroups);
+      setupStubs(emptyResponse);
 
-      var done = function(result){
-        expect(result).to.be.empty;
-      };
+      var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
-      var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: true }, params:{userid:'sally'}};
+      expect(getMeta(req, res, function(result){
+        console.log(' ### result is', result);
+        expect(result).to.be.a('undefined');
+      }));
 
-      expect(getMeta(req,res, done));
     });
     it('should not worry about the req.method', function () {
-      setupStubs(emptyResponse, emptyGroups);
-
-      var done = function(result){
-        expect(result).to.be.empty;
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'POST', _tokendata:{ userid: 'sally', isserver: true }, params:{userid:'sally'}};
 
-      expect(getMeta(req,res, done));
+      expect(getMeta(req,res, function(result){
+        expect(result).to.be.a('undefined');
+      }));
     });
     it('should not worry that the userid differ', function () {
-      setupStubs(emptyResponse, emptyGroups);
+      setupStubs(emptyResponse);
 
-      var done = function(result){
-        expect(result).to.be.empty;
-      };
+      var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: true }, params:{userid:'bob'}};
 
-      var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: true }, params:{userid:'billy'}};
-
-      expect(getMeta(req,res, done));
+      expect(getMeta(req,res, function(result){
+        expect(result).to.be.a('undefined');
+      }));
     });
   });
 
   describe('given a user token for requested userid', function () {
     it('should be valid when id matches', function () {
-      setupStubs(emptyResponse, emptyGroups);
+      setupStubs(emptyResponse);
 
-      var done = function(result){
-       expect(result).to.be.a('undefined');
-      };
+      var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'bob'}};
 
-      var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'sally'}};
+      expect(getMeta(req, res, function(result){
+        expect(result).to.be.a('undefined');
+      }));
 
-      expect(getMeta(req, res, done));
     });
     it('should be valid for PUT method', function () {
-      setupStubs(emptyResponse, emptyGroups);
-
-      var done = function(result){
-        expect(result).to.be.a('undefined');
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'PUT', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'sally'}};
 
-      expect(getMeta(req, res, done));
+      expect(getMeta(req, res, function(result){
+        expect(result).to.be.a('undefined');
+      }));
+
     });
     it('should be valid for POST method', function () {
-      setupStubs(emptyResponse, emptyGroups);
-
-      var done = function(result){
-        expect(result).to.be.a('undefined');
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'POST', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'sally'}};
 
-      expect(getMeta(req, res, done));
+      expect(getMeta(req, res, function(result){
+        console.log('Woop there it is', result);
+        expect(result).to.be.a('undefined');
+      }));
     });
     it('should be valid for DEL method', function () {
-      setupStubs(emptyResponse, emptyGroups);
-
-      var done = function(result){
-        expect(result).to.be.a('undefined');
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'DEL', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'sally'}};
 
-      expect(getMeta(req, res, done));
+      expect(getMeta(req, res, function(result){
+        expect(result).to.be.a('undefined');
+      }));
     });
   });
 
   describe('given a user token for different userid', function () {
     it('should invalid when not in group', function () {
-      setupStubs(emptyResponse, emptyGroups);
-
-      var done = function(result){
-        expect(result).to.equal(false);
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
-      expect(getMeta(req,res, done));
+      expect(getMeta(req,res, function(result){
+        expect(result).to.equal(false);
+      }));
     });
     it('should be valid when in group and GET', function () {
-      setupStubs(emptyResponse, inGroups);
-
-      var done = function(result){
-        expect(result).to.equal(false);
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'GET', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
-      expect(getMeta(req, res, done));
+      expect(getMeta(req, res, function(result){
+        expect(result).to.equal(false);
+      }));
     });
     it('should be invalid when in group and POST', function () {
-      setupStubs(emptyResponse, inGroups);
-
-      var done = function(result){
-        expect(result).to.equal(false);
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'POST', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
-      expect(getMeta(req, res, done));
+      expect(getMeta(req, res, function(result){
+        expect(result).to.equal(false);
+      }));
     });
     it('should be invalid when in group and PUT', function () {
-      setupStubs(emptyResponse, inGroups);
-
-      var done = function(result){
-        expect(result).to.equal(false);
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'PUT', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
-      expect(getMeta(req, res, done));
+      expect(getMeta(req, res, function(result){
+        expect(result).to.equal(false);
+      }));
     });
     it('should be invalid when in group and DEL', function () {
-      setupStubs(emptyResponse, inGroups);
-
-      var done = function(result){
-        expect(result).to.equal(false);
-      };
+      setupStubs(emptyResponse);
 
       var req = { method:'DEL', _tokendata:{ userid: 'sally', isserver: false }, params:{userid:'other'}};
 
-      expect(getMeta(req, res, done));
+      expect(getMeta(req, res, function(result){
+        expect(result).to.equal(false);
+      }));
     });
   });
 });
