@@ -1,6 +1,6 @@
 {
   "name": "seagull",
-  "version": "0.1.22-new",
+  "version": "0.2.3-dragster",
   "description": "API for managing user metadata.",
   "main": "lib/index.js",
   "directories": {
