@@ -37,7 +37,7 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc'
       },
-      all: ['Gruntfile.js', 'lib/**/*.js', 'test/**/*.js']
+      all: ['env.js', 'Gruntfile.js', 'lib/**/*.js', 'test/**/*.js']
     },
     docco: {
       docs: {

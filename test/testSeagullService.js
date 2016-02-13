@@ -64,6 +64,7 @@ describe('seagull', function () {
   beforeEach(function () {
     mockableObject.reset(userApiClient);
     mockableObject.reset(metrics);
+    mockableObject.reset(gatekeeperClient);
     sinon.stub(metrics, 'postServer').callsArg(3);
     sinon.stub(metrics, 'postWithUser').callsArg(3);
     sinon.stub(metrics, 'postThisUser').callsArg(3);
@@ -112,13 +113,20 @@ describe('seagull', function () {
     sinon.stub(userApiClient, 'getMetaPair').callsArgWith(1, null, metaPair);
   }
 
-  function expectTokenAndMeta(token, user, metaPair) {
-    user = user || defaultUser;
-    metaPair = metaPair || defaultMetaPair;
+  function expectToken(token) {
     expect(userApiClient.checkToken).to.have.been.calledOnce;
     expect(userApiClient.checkToken).to.have.been.calledWith(token, sinon.match.func);
+  }
+
+  function expectMeta(user) {
+    user = user || defaultUser;
     expect(userApiClient.getMetaPair).to.have.been.calledOnce;
     expect(userApiClient.getMetaPair).to.have.been.calledWith(user.userid, sinon.match.func);
+  }
+
+  function expectTokenAndMeta(token, user) {
+    expectToken(token);
+    expectMeta(user);
   }
 
   describe('/:userid/private/:name', function () {
@@ -210,8 +218,23 @@ describe('seagull', function () {
       shortname: 'Boo',
       bio: 'Haunting is my game.'
     };
+    var sally = { userid: 'sally', isserver: true };
 
-    it('GET should return 404 because it doesn\'t exist yet', function (done) {
+    it('GET should return 404 because it doesn\'t exist yet (server)', function (done) {
+      setupTokenAndMeta(sally);
+      supertest
+        .get('/billy/profile')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(404)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expectTokenAndMeta('howdy');
+          done();
+        });
+    });
+
+    it('GET should return 404 because it doesn\'t exist yet (same user id)', function (done) {
       setupTokenAndMeta();
       supertest
         .get('/billy/profile')
@@ -225,7 +248,57 @@ describe('seagull', function () {
         });
     });
 
-    it('POST should return a 200 on success', function (done) {
+    it('GET should return 404 because it doesn\'t exist yet (with different user ids; with member permissions)', function (done) {
+      setupTokenAndMeta();
+      var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
+      userInGroupStub.callsArgWith(2, null, {'view': {}});
+      supertest
+        .get('/bob/profile')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(404)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expectTokenAndMeta('howdy', {'userid': 'bob'});
+          expect(userInGroupStub).to.have.been.called.once;
+          done();
+        });
+    });
+
+    it('GET should return 401 because it is a different user id without member permissions or server', function (done) {
+      setupTokenAndMeta();
+      var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
+      userInGroupStub.callsArgWith(2);
+      supertest
+        .get('/bob/profile')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(401)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expectToken('howdy');
+          expect(userInGroupStub).to.have.been.called.twice;
+          done();
+        });
+    });
+
+    it('POST should return a 200 on success (server)', function (done) {
+      setupTokenAndMeta(sally);
+      supertest
+        .post('/billy/profile')
+        .send(metatest1)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(metatest1);
+          expectTokenAndMeta('howdy');
+          done();
+        });
+    });
+
+    it('POST should return a 200 on success (same user)', function (done) {
       setupTokenAndMeta();
       supertest
         .post('/billy/profile')
@@ -237,6 +310,60 @@ describe('seagull', function () {
           expect(err).to.not.exist;
           expect(res.body).deep.equals(metatest1);
           expectTokenAndMeta('howdy');
+          done();
+        });
+    });
+
+    it('POST should return a 200 on success (with different user ids; with custodian permissions)', function (done) {
+      setupTokenAndMeta();
+      var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
+      userInGroupStub.callsArgWith(2, null, {'custodian': {}});
+      supertest
+        .post('/bob/profile')
+        .send(metatest1)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(metatest1);
+          expectTokenAndMeta('howdy', {'userid': 'bob'});
+          done();
+        });
+    });
+
+    it('POST should return a 401 on authorization failure (with different user ids; with no permissions)', function (done) {
+      setupTokenAndMeta();
+      var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
+      userInGroupStub.callsArgWith(2);
+      supertest
+        .post('/bob/profile')
+        .send(metatest1)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(401)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals('Unauthorized');
+          expectToken('howdy');
+          done();
+        });
+    });
+
+    it('POST should return a 401 on authorization failure (with different user ids; with other than custodial permissions)', function (done) {
+      setupTokenAndMeta();
+      var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
+      userInGroupStub.callsArgWith(2, null, {'view': {}});
+      supertest
+        .post('/bob/profile')
+        .send(metatest1)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(401)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals('Unauthorized');
+          expectToken('howdy');
           done();
         });
     });
@@ -256,10 +383,10 @@ describe('seagull', function () {
         });
     });
 
-    it('PUT should return 200 on success', function (done) {
-      setupTokenAndMeta();
+    it('PUT should return a 200 on success (server)', function (done) {
+      setupTokenAndMeta(sally);
       supertest
-        .put('/billy/profile')
+        .post('/billy/profile')
         .send(metatest2)
         .set(sessionTokenHeader, 'howdy')
         .expect(200)
@@ -268,6 +395,76 @@ describe('seagull', function () {
           expect(err).to.not.exist;
           expect(res.body).deep.equals(_.extend(_.cloneDeep(metatest1), metatest2));
           expectTokenAndMeta('howdy');
+          done();
+        });
+    });
+
+    it('PUT should return a 200 on success (same user)', function (done) {
+      setupTokenAndMeta();
+      supertest
+        .post('/billy/profile')
+        .send(metatest2)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(_.extend(_.cloneDeep(metatest1), metatest2));
+          expectTokenAndMeta('howdy');
+          done();
+        });
+    });
+
+    it('PUT should return a 200 on success (with different user ids; with custodian permissions)', function (done) {
+      setupTokenAndMeta();
+      var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
+      userInGroupStub.callsArgWith(2, null, {'custodian': {}});
+      supertest
+        .post('/bob/profile')
+        .send(metatest2)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(_.extend(_.cloneDeep(metatest1), metatest2));
+          expectTokenAndMeta('howdy', {'userid': 'bob'});
+          done();
+        });
+    });
+
+    it('PUT should return a 401 on authorization failure (with different user ids; with no permissions)', function (done) {
+      setupTokenAndMeta();
+      var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
+      userInGroupStub.callsArgWith(2);
+      supertest
+        .post('/bob/profile')
+        .send(metatest2)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(401)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals('Unauthorized');
+          expectToken('howdy');
+          done();
+        });
+    });
+
+    it('PUT should return a 401 on authorization failure (with different user ids; with other than custodial permissions)', function (done) {
+      setupTokenAndMeta();
+      var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
+      userInGroupStub.callsArgWith(2, null, {'view': {}});
+      supertest
+        .post('/bob/profile')
+        .send(metatest1)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(401)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals('Unauthorized');
+          expectToken('howdy');
           done();
         });
     });
