@@ -43,15 +43,15 @@ function shouldSucceed(err, result, code) {
   }
   expect(err).to.not.exist;
   expect(result).to.exist;
-  expect(result.statuscode).to.equal(code);
+  expect(result.statusCode).to.equal(code);
 }
 
 function shouldFail(err, result, code) {
   if (result) {
     console.log('Got result when expecting null', result);
   }
-  expect(err).to.have.property('statuscode');
-  expect(err.statuscode).to.equal(code);
+  expect(err).to.have.property('statusCode');
+  expect(err.statusCode).to.equal(code);
   expect(result).to.not.exist;
   expect(err).to.exist;
   expect(err.message).to.exist;
