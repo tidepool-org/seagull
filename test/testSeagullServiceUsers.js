@@ -364,6 +364,32 @@ describe('seagull/users', function () {
               [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled, expectGetMetaPairNotCalled], done);
         });
 
+        it('returns failure with empty body due to trustor permissions of any and another', function(done) {
+          test(targetUrl + '?trustorPermissions=view,any', 400, [], done);
+        });
+
+        it('returns failure with empty body due to trustor permissions of none and another', function(done) {
+          test(targetUrl + '?trustorPermissions=view,none', 400, [], done);
+        });
+
+        it('returns failure with empty body due to trustor permissions of any and none', function(done) {
+          test(targetUrl + '?trustorPermissions=none,any', 400, [], done);
+        });
+
+        it('returns success and one shared user with query for trustor permissions of any', function(done) {
+          delete targetUser.groups[bravoUser.userid];
+          expectSuccessfulTest(targetUrl + '?trustorPermissions=any',
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+        });
+
+        it('returns success and one shared user with query for trustor permissions of none', function(done) {
+          delete targetUser.groups[alphaUser.userid];
+          delete alphaFinal.trustorPermissions;
+          delete alphaFinal.profile.patient;
+          expectSuccessfulTest(targetUrl + '?trustorPermissions=none',
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+        });
+
         it('returns success and one shared user with query on multiple parameters that matches one (other missing permissions)', function(done) {
           targetUser.groups[bravoUser.userid] = null;
           expectSuccessfulTest(targetUrl + '?trustorPermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
@@ -404,6 +430,31 @@ describe('seagull/users', function () {
           it('returns success and no shared users with query for multiple unknown trustee permissions', function(done) {
             expectSuccessfulTest(targetUrl + '?trusteePermissions=unknown,,,view',
                 [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled, expectGetMetaPairNotCalled], done);
+          });
+
+          it('returns failure with empty body due to trustee permissions of any and another', function(done) {
+            test(targetUrl + '?trusteePermissions=view,any', 400, [], done);
+          });
+
+          it('returns failure with empty body due to trustee permissions of none and another', function(done) {
+            test(targetUrl + '?trusteePermissions=view,none', 400, [], done);
+          });
+
+          it('returns failure with empty body due to trustee permissions of any and none', function(done) {
+            test(targetUrl + '?trusteePermissions=none,any', 400, [], done);
+          });
+
+          it('returns success and one shared user with query for trustee permissions of any', function(done) {
+            delete targetUser.users[bravoUser.userid];
+            expectSuccessfulTest(targetUrl + '?trusteePermissions=any',
+                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and one shared user with query for trustee permissions of none', function(done) {
+            delete targetUser.users[alphaUser.userid];
+            delete alphaFinal.trusteePermissions;
+            expectSuccessfulTest(targetUrl + '?trusteePermissions=none',
+                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
           });
 
           it('returns success and one shared user with query on multiple parameters that matches one (other missing permissions)', function(done) {
