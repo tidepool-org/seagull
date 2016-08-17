@@ -25,7 +25,7 @@ var expect = require('salinity').expect;
 /* jshint expr: true */
 
 var metadb = require('../lib/mongoCrudHandler.js')({
-  mongoConnectionString: 'mongodb://localhost/test_seagull',
+  mongoConnectionString: 'mongodb://localhost/seagull_test',
   // the special config value we pass for testing will enable us to wipe the database
   _wipeTheEntireDatabase: true,
   adminKey: 'specialkey',

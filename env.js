@@ -55,7 +55,7 @@ module.exports = (function() {
     throw new Error('Must specify either PORT or HTTPS_PORT in your environment.');
   }
 
-  env.mongoConnectionString = config.fromEnvironment('MONGO_CONNECTION_STRING', 'mongodb://localhost/user');
+  env.mongoConnectionString = config.fromEnvironment('MONGO_CONNECTION_STRING', 'mongodb://localhost/seagull');
 
   // Configurable salt for password encryption
   env.saltDeploy = config.fromEnvironment('SALT_DEPLOY');
