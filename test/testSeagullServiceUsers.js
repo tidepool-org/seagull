@@ -32,7 +32,7 @@ var env = {
 };
 
 var mockCrudHandler = mockableObject.make('getDoc');
-var mockUserApiClient = mockableObject.make('checkToken', 'getMetaPair', 'getAnonymousPair', 'getUserInfo');
+var mockUserApiClient = mockableObject.make('checkToken', 'getAnonymousPair', 'getUserInfo');
 var mockGatekeeperClient = mockableObject.make('userInGroup', 'groupsForUser', 'usersInGroup');
 var mockMetrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
 
@@ -58,8 +58,8 @@ describe('seagull/users', function () {
 
   describe('GET /users/:userid/users', function(done) {
 
-    var alphaUser, alphaMetaPair, alphaProfile, alphaTrustorPermissions, alphaTrusteePermissions, alphaDoc, alphaFinal;
-    var bravoUser, bravoMetaPair, bravoProfile, bravoTrustorPermissions, bravoTrusteePermissions, bravoDoc, bravoFinal;
+    var alphaUser, alphaProfile, alphaTrustorPermissions, alphaTrusteePermissions, alphaDoc, alphaFinal;
+    var bravoUser, bravoProfile, bravoTrustorPermissions, bravoTrusteePermissions, bravoDoc, bravoFinal;
     var targetUser, custodianUser;
     var serverToken, targetToken, custodianToken, viewerToken;
 
@@ -68,7 +68,6 @@ describe('seagull/users', function () {
 
     function setupData() {
       alphaUser = { userid: 'alpha', username: 'alpha@tidepool.org', emailVerified: true, termsAccepted: '2016-01-01T12:00:00-07:00', passwordExists: true };
-      alphaMetaPair = { id: 'alpha-metapair-id', hash: 'alpha-metapair-hash' };
       alphaProfile = { fullName: 'Alpha', patient: { birthday: '2001-11-30', diagnosisDate: '2010-12-31' } };
       alphaTrustorPermissions = { upload: {}, view: {} };
       alphaTrusteePermissions = { view: {} };
@@ -76,7 +75,6 @@ describe('seagull/users', function () {
       alphaFinal = _.merge({}, alphaUser, { profile: alphaProfile, trustorPermissions: alphaTrustorPermissions, trusteePermissions: alphaTrusteePermissions });
 
       bravoUser = { userid: 'bravo', username: 'bravo@tidepool.org', emailVerified: false, termsAccepted: '2015-12-31T23:59:59-08:00', passwordExists: true };
-      bravoMetaPair = { id: 'bravo-metapair-id', hash: 'bravo-metapair-hash' };
       bravoProfile = { fullName: 'Bravo', patient: { birthday: '1970-01-30', diagnosisDate: '1990-02-31' } };
       bravoTrustorPermissions = { view: {} };
       bravoTrusteePermissions = { upload: {}, view: {} };
@@ -101,13 +99,12 @@ describe('seagull/users', function () {
       targetUrl = '/users/' + targetUser.userid + '/users';
     }
 
-    var getDocStub, checkTokenStub, getUserInfoStub, getMetaPairStub, userInGroupStub, groupsForUserStub, usersInGroupStub;
+    var getDocStub, checkTokenStub, getUserInfoStub, userInGroupStub, groupsForUserStub, usersInGroupStub;
 
     function setupStubs() {
       getDocStub = sinon.stub(mockCrudHandler, 'getDoc');
       checkTokenStub = sinon.stub(mockUserApiClient, 'checkToken');
       getUserInfoStub = sinon.stub(mockUserApiClient, 'getUserInfo');
-      getMetaPairStub = sinon.stub(mockUserApiClient, 'getMetaPair');
       userInGroupStub = sinon.stub(mockGatekeeperClient, 'userInGroup');
       groupsForUserStub = sinon.stub(mockGatekeeperClient, 'groupsForUser');
       usersInGroupStub = sinon.stub(mockGatekeeperClient, 'usersInGroup');
@@ -123,10 +120,8 @@ describe('seagull/users', function () {
       usersInGroupStub.withArgs(targetUser.userid).callsArgWith(1, null, targetUser.users);
       getUserInfoStub.withArgs(alphaUser.userid).callsArgWith(1, null, alphaUser);
       getUserInfoStub.withArgs(bravoUser.userid).callsArgWith(1, null, bravoUser);
-      getMetaPairStub.withArgs(alphaUser.userid).callsArgWith(1, null, alphaMetaPair);
-      getMetaPairStub.withArgs(bravoUser.userid).callsArgWith(1, null, bravoMetaPair);
-      getDocStub.withArgs(alphaMetaPair).callsArgWith(1, null, alphaDoc);
-      getDocStub.withArgs(bravoMetaPair).callsArgWith(1, null, bravoDoc);
+      getDocStub.withArgs(alphaUser.userid).callsArgWith(1, null, alphaDoc);
+      getDocStub.withArgs(bravoUser.userid).callsArgWith(1, null, bravoDoc);
 
       sinon.stub(mockMetrics, 'postServer').callsArg(3);
       sinon.stub(mockMetrics, 'postThisUser').callsArg(3);
@@ -244,46 +239,24 @@ describe('seagull/users', function () {
       expect(mockUserApiClient.getUserInfo.secondCall).to.have.been.calledWithExactly(bravoUser.userid, sinon.match.func);
     }
 
-    function expectGetMetaPairNotCalled() {
-      expect(mockUserApiClient.getMetaPair).to.not.have.been.called;
-    }
-
-    function expectGetMetaPairForAlpha() {
-      expect(mockUserApiClient.getMetaPair).to.have.been.calledOnce;
-      expect(mockUserApiClient.getMetaPair.firstCall).to.have.been.calledWithExactly(alphaUser.userid, sinon.match.func);
-    }
-
-    function expectGetMetaPairForBravo() {
-      expect(mockUserApiClient.getMetaPair).to.have.been.calledOnce;
-      expect(mockUserApiClient.getMetaPair.firstCall).to.have.been.calledWithExactly(bravoUser.userid, sinon.match.func);
-    }
-
-    function expectGetMetaPairForAlphaAndBravo() {
-      expectGetUserInfoForAlphaAndBravo();
-      expect(mockUserApiClient.getMetaPair).to.have.been.calledTwice;
-      expect(mockUserApiClient.getMetaPair.firstCall).to.have.been.calledWithExactly(alphaUser.userid, sinon.match.func);
-      expect(mockUserApiClient.getMetaPair.secondCall).to.have.been.calledWithExactly(bravoUser.userid, sinon.match.func);
-    }
-
     function expectGetDocNotCalled() {
       expect(mockCrudHandler.getDoc).to.not.have.been.called;
     }
 
     function expectGetDocForAlpha() {
       expect(mockCrudHandler.getDoc).to.have.been.calledOnce;
-      expect(mockCrudHandler.getDoc).to.have.been.calledWithExactly(alphaMetaPair, sinon.match.func);
+      expect(mockCrudHandler.getDoc).to.have.been.calledWithExactly(alphaUser.userid, sinon.match.func);
     }
 
     function expectGetDocForBravo() {
       expect(mockCrudHandler.getDoc).to.have.been.calledOnce;
-      expect(mockCrudHandler.getDoc).to.have.been.calledWithExactly(bravoMetaPair, sinon.match.func);
+      expect(mockCrudHandler.getDoc).to.have.been.calledWithExactly(bravoUser.userid, sinon.match.func);
     }
 
     function expectGetDocForAlphaAndBravo() {
-      expectGetMetaPairForAlphaAndBravo();
       expect(mockCrudHandler.getDoc).to.have.been.calledTwice;
-      expect(mockCrudHandler.getDoc.firstCall).to.have.been.calledWithExactly(alphaMetaPair, sinon.match.func);
-      expect(mockCrudHandler.getDoc.secondCall).to.have.been.calledWithExactly(bravoMetaPair, sinon.match.func);
+      expect(mockCrudHandler.getDoc.firstCall).to.have.been.calledWithExactly(alphaUser.userid, sinon.match.func);
+      expect(mockCrudHandler.getDoc.secondCall).to.have.been.calledWithExactly(bravoUser.userid, sinon.match.func);
     }
 
     it('returns 401 without session token', function(done) {
@@ -341,27 +314,27 @@ describe('seagull/users', function () {
 
         it('returns success and one shared user with query for a specific trustor permission (upload)', function(done) {
           expectSuccessfulTest(targetUrl + '?trustorPermissions=upload',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
         });
 
         it('returns success and one shared user with query for multiple specific trustor permissions', function(done) {
           expectSuccessfulTest(targetUrl + '?trustorPermissions=upload,view',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
         });
 
         it('returns success and one shared user with query for multiple specific trustor permissions', function(done) {
           expectSuccessfulTest(targetUrl + '?trustorPermissions=upload,,,view',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
         });
 
         it('returns success and no shared users with query for an unknown trustor permission', function(done) {
           expectSuccessfulTest(targetUrl + '?trustorPermissions=unknown',
-              [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled, expectGetMetaPairNotCalled], done);
+              [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
         });
 
         it('returns success and no shared users with query for multiple unknown trustor permissions', function(done) {
           expectSuccessfulTest(targetUrl + '?trustorPermissions=unknown,,,view',
-              [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled, expectGetMetaPairNotCalled], done);
+              [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
         });
 
         it('returns failure with empty body due to trustor permissions of any and another', function(done) {
@@ -379,7 +352,7 @@ describe('seagull/users', function () {
         it('returns success and one shared user with query for trustor permissions of any', function(done) {
           delete targetUser.groups[bravoUser.userid];
           expectSuccessfulTest(targetUrl + '?trustorPermissions=any',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
         });
 
         it('returns success and one shared user with query for trustor permissions of none', function(done) {
@@ -387,13 +360,13 @@ describe('seagull/users', function () {
           delete alphaFinal.trustorPermissions;
           delete alphaFinal.profile.patient;
           expectSuccessfulTest(targetUrl + '?trustorPermissions=none',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
         });
 
         it('returns success and one shared user with query on multiple parameters that matches one (other missing permissions)', function(done) {
           targetUser.groups[bravoUser.userid] = null;
           expectSuccessfulTest(targetUrl + '?trustorPermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
         });
 
         describe('with trustee permissions data', function() {
@@ -409,27 +382,27 @@ describe('seagull/users', function () {
 
           it('returns success and one shared user with query for a specific trustee permission (upload)', function(done) {
             expectSuccessfulTest(targetUrl + '?trusteePermissions=upload',
-                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetMetaPairForBravo, expectGetDocForBravo], done);
+                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
           });
 
           it('returns success and one shared user with query for multiple specific trustee permissions', function(done) {
             expectSuccessfulTest(targetUrl + '?trusteePermissions=upload,view',
-                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetMetaPairForBravo, expectGetDocForBravo], done);
+                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
           });
 
           it('returns success and one shared user with query for multiple specific trustee permissions', function(done) {
             expectSuccessfulTest(targetUrl + '?trusteePermissions=upload,,,view',
-                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetMetaPairForBravo, expectGetDocForBravo], done);
+                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
           });
 
           it('returns success and no shared users with query for an unknown trustee permission', function(done) {
             expectSuccessfulTest(targetUrl + '?trusteePermissions=unknown',
-                [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled, expectGetMetaPairNotCalled], done);
+                [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
           });
 
           it('returns success and no shared users with query for multiple unknown trustee permissions', function(done) {
             expectSuccessfulTest(targetUrl + '?trusteePermissions=unknown,,,view',
-                [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled, expectGetMetaPairNotCalled], done);
+                [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
           });
 
           it('returns failure with empty body due to trustee permissions of any and another', function(done) {
@@ -447,20 +420,20 @@ describe('seagull/users', function () {
           it('returns success and one shared user with query for trustee permissions of any', function(done) {
             delete targetUser.users[bravoUser.userid];
             expectSuccessfulTest(targetUrl + '?trusteePermissions=any',
-                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
           });
 
           it('returns success and one shared user with query for trustee permissions of none', function(done) {
             delete targetUser.users[alphaUser.userid];
             delete alphaFinal.trusteePermissions;
             expectSuccessfulTest(targetUrl + '?trusteePermissions=none',
-                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
           });
 
           it('returns success and one shared user with query on multiple parameters that matches one (other missing permissions)', function(done) {
             targetUser.users[bravoUser.userid] = null;
             expectSuccessfulTest(targetUrl + '?trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
           });
 
           describe('with user data', function() {
@@ -481,32 +454,32 @@ describe('seagull/users', function () {
 
             it('returns success and one shared user with query for a specific, case-insensitive email that matches one', function(done) {
               expectSuccessfulTest(targetUrl + '?email=ALPHA@TIDEPOOL.org',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             it('returns success and no shared users with query for an unknown email that matches none', function(done) {
               expectSuccessfulTest(targetUrl + '?email=unknown.org',
-                  [expectBodyWithEmptyArray, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairNotCalled], done);
+                  [expectBodyWithEmptyArray, expectGetUserInfoForAlphaAndBravo], done);
             });
 
             it('returns success and one shared user with query for email verified (TruE)', function(done) {
               expectSuccessfulTest(targetUrl + '?emailVerified=TruE',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             it('returns success and one shared user with query for email verified (YeS)', function(done) {
               expectSuccessfulTest(targetUrl + '?emailVerified=YeS',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             it('returns success and one shared user with query for email verified (Y)', function(done) {
               expectSuccessfulTest(targetUrl + '?emailVerified=Y',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             it('returns success and one shared user with query for email verified (1)', function(done) {
               expectSuccessfulTest(targetUrl + '?emailVerified=1',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             it('returns success and one shared user with query for email not verified (FalsE)', function(done) {
@@ -536,12 +509,12 @@ describe('seagull/users', function () {
 
             it('returns success and one shared user with query for a partial terms accepted that matches one', function(done) {
               expectSuccessfulTest(targetUrl + '?termsAccepted=2016',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             it('returns success and one shared user with query for a specific terms accepted', function(done) {
               expectSuccessfulTest(targetUrl + '?termsAccepted=2016-01-01T12:00:00-07:00',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             it('returns success and no shared users with query for a terms accepted that does not match', function(done) {
@@ -552,34 +525,23 @@ describe('seagull/users', function () {
             it('returns success and one shared user with query on multiple parameters that matches one (other missing username)', function(done) {
               bravoUser.username = null;
               expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             it('returns success and one shared user with query on multiple parameters that matches one (other missing termsAccepted)', function(done) {
               bravoUser.termsAccepted = null;
               expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetMetaPairForAlpha, expectGetDocForAlpha], done);
+                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
             });
 
             describe('with profile data', function() {
-              it('returns failure with empty body due to error returned by getMetaPair', function(done) {
-                getMetaPairStub.withArgs(alphaUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
-                test(targetUrl, 503, [expectBodyWithEmptyObject], done);
-              });
-
               it('returns failure with empty body due to error returned by getDoc', function(done) {
-                getDocStub.withArgs(alphaMetaPair).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
+                getDocStub.withArgs(alphaUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
                 test(targetUrl, 503, [expectBodyWithEmptyObject], done);
-              });
-
-              it('returns success and one shared user due to not found error returned by getMetaPair for one user', function(done) {
-                getMetaPairStub.withArgs(bravoUser.userid).callsArgWith(1, {statusCode: 404}, null);
-                expectSuccessfulTest(targetUrl + '?name=A',
-                    [expectBodyWithAlpha, expectGetMetaPairForAlphaAndBravo, expectGetDocForAlpha], done);
               });
 
               it('returns success and one shared user due to not found error returned by getDoc for one user', function(done) {
-                getDocStub.withArgs(bravoMetaPair).callsArgWith(1, {statusCode: 404}, null);
+                getDocStub.withArgs(bravoUser.userid).callsArgWith(1, {statusCode: 404}, null);
                 expectSuccessfulTest(targetUrl + '?name=A',
                     [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
               });

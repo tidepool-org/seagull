@@ -84,14 +84,8 @@ describe('metadb:', function () {
       metadb._wipeTheEntireDatabase(done);
     });
 
-    var userpair1 = {
-      'id': '6fad283648',
-      'hash': '836486af12587263b8476fad2'
-    };
-    var userpair2 = {
-      'id': '36486fad28',
-      'hash': '2587263b836486af18476fad2'
-    };
+    var userId1 = '6fad283648';
+    var userId2 = '36486fad28';
     var metatest1 = {
       name: 'Testy',
       bio: 'Awesome is my game.'
@@ -122,28 +116,28 @@ describe('metadb:', function () {
       var crypttext = null;
 
       it('should be able to encrypt a string', function(done) {
-        crypttext = metadb._encrypt_value(userpair1, plaintext);
+        crypttext = metadb._encrypt_value(plaintext);
         expect(crypttext).to.exist;
         expect(crypttext).to.match(/[^ ]+/);
         done();
       });
 
       it('should be able to decrypt a string', function(done) {
-        var s = metadb._decrypt_value(userpair1, crypttext);
+        var s = metadb._decrypt_value(crypttext);
         expect(s).to.exist;
         expect(s).to.equal(plaintext);
         done();
       });
 
       it('should be able to encrypt an object', function(done) {
-        crypttext = metadb._encrypt_value(userpair1, plainobject);
+        crypttext = metadb._encrypt_value(plainobject);
         expect(crypttext).to.exist;
         expect(crypttext).to.match(/[^ ]+/);
         done();
       });
 
       it('should be able to decrypt an object', function(done) {
-        var s = metadb._decrypt_value(userpair1, crypttext);
+        var s = metadb._decrypt_value(crypttext);
         expect(s).to.exist;
         expect(s).to.deep.equal(plainobject);
         done();
@@ -152,7 +146,7 @@ describe('metadb:', function () {
     });
 
     it('should create a metadata object', function (done) {
-      metadb.createDoc(userpair1, metatest1, function (err, result) {
+      metadb.createDoc(userId1, metatest1, function (err, result) {
         shouldSucceed(err, result, 201);
         expect(result.detail).to.deep.equal(metatest1);
         done();
@@ -160,14 +154,14 @@ describe('metadb:', function () {
     });
 
     it('should fail trying to recreate existing object', function (done) {
-      metadb.createDoc(userpair1, metatest1, function (err, result) {
+      metadb.createDoc(userId1, metatest1, function (err, result) {
         shouldFail(err, result, 400);
         done();
       });
     });
 
     it('should create a second object', function (done) {
-      metadb.createDoc(userpair2, metatest2, function (err, result) {
+      metadb.createDoc(userId2, metatest2, function (err, result) {
         shouldSucceed(err, result, 201);
         expect(result.detail).to.deep.equal(metatest2);
         done();
@@ -175,32 +169,22 @@ describe('metadb:', function () {
     });
 
     it('should be able to fetch an object', function (done) {
-      metadb.getDoc(userpair1, function (err, result) {
+      metadb.getDoc(userId1, function (err, result) {
         shouldSucceed(err, result, 200);
         expect(result.detail).to.deep.equal(metatest1);
         done();
       });
     });
 
-    it('should fail to fetch from a bad userpair', function (done) {
-      var up = { id: '1234', hash: '23452fda' };
-      metadb.getDoc(up, function (err, result) {
+    it('should fail to fetch from a bad user id', function (done) {
+      metadb.getDoc('1234', function (err, result) {
         shouldFail(err, result, 404);
         done();
       });
     });
 
-    it('should be able to fetch even if the hash is bad as it is ignored', function (done) {
-      var up = { id: userpair1.id, hash: userpair2.hash };
-      metadb.getDoc(up, function (err, result) {
-        shouldSucceed(err, result, 200);
-        expect(result.detail).to.deep.equal(metatest1);
-        done();
-      });
-    });
-
     it('should be able to fetch the other object', function (done) {
-      metadb.getDoc(userpair2, function (err, result) {
+      metadb.getDoc(userId2, function (err, result) {
         shouldSucceed(err, result, 200);
         expect(result.detail).to.deep.equal(metatest2);
         done();
@@ -210,7 +194,7 @@ describe('metadb:', function () {
     it('should be able to modify a field', function (done) {
       var newname = 'BooBoo';
       var updates = { shortname: newname };
-      metadb.partialUpdate(userpair2, updates, function (err, result) {
+      metadb.partialUpdate(userId2, updates, function (err, result) {
         shouldSucceed(err, result, 200);
         expect(result.detail.shortname).to.equal(newname);
         metatest2.shortname = newname;
@@ -221,7 +205,7 @@ describe('metadb:', function () {
     it('should be able to create a new field', function (done) {
       var name = 'Grizzly';
       var updates = { name: name };
-      metadb.partialUpdate(userpair2, updates, function (err, result) {
+      metadb.partialUpdate(userId2, updates, function (err, result) {
         shouldSucceed(err, result, 200);
         expect(result.detail.name).to.equal(name);
         metatest2.name = name;
@@ -232,7 +216,7 @@ describe('metadb:', function () {
     it('should be able to create a new subdocument field', function (done) {
       var item1 = 'picnic basket';
       var updates = { 'likes.item1': item1 };
-      metadb.partialUpdate(userpair2, updates, function (err, result) {
+      metadb.partialUpdate(userId2, updates, function (err, result) {
         shouldSucceed(err, result, 200);
         expect(result.detail.likes.item1).to.equal(item1);
         metatest2.likes = { item1: item1 };
@@ -244,7 +228,7 @@ describe('metadb:', function () {
       var item2 = 'sandwiches';
       var bio = 'Yogi, get out of here!';
       var updates = { 'likes.item2': item2, bio: bio };
-      metadb.partialUpdate(userpair2, updates, function (err, result) {
+      metadb.partialUpdate(userId2, updates, function (err, result) {
         shouldSucceed(err, result, 200);
         expect(result.detail.likes.item2).to.equal(item2);
         expect(result.detail.bio).to.equal(bio);
@@ -255,12 +239,11 @@ describe('metadb:', function () {
     });
 
     it('should still be able to fetch the other object', function (done) {
-      metadb.getDoc(userpair2, function (err, result) {
+      metadb.getDoc(userId2, function (err, result) {
         shouldSucceed(err, result, 200);
         expect(result.detail).to.deep.equal(metatest2);
         done();
       });
     });
-
   });
 });
