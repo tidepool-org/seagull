@@ -39,7 +39,7 @@ var env = {
 };
 
 var userApiClient = mockableObject.make('checkToken', 'getAnonymousPair');
-var gatekeeperClient = mockableObject.make('userInGroup');
+var gatekeeperClient = mockableObject.make('userInGroup', 'groupsForUser');
 var metrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
