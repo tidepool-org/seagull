@@ -39,7 +39,7 @@ var env = {
 };
 
 var userApiClient = mockableObject.make('checkToken', 'getAnonymousPair');
-var gatekeeperClient = mockableObject.make('userInGroup');
+var gatekeeperClient = mockableObject.make('userInGroup', 'groupsForUser');
 var metrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
@@ -197,6 +197,7 @@ describe('seagull', function () {
 
   describe('/:userid/:collection', function () {
     var metatest1 = {
+      fullName: 'Billy McBillface',
       name: 'Testy',
       bio: 'Awesome is my game.'
     };
@@ -204,10 +205,16 @@ describe('seagull', function () {
       shortname: 'Boo',
       bio: 'Haunting is my game.'
     };
+    var settingstest = {
+      siteChangeSource: 'cannulaPrime',
+      bgTarget: {'high': 180, 'low': 72},
+      units: {'bg': 'mg/dL'}
+    };
     var sally = { userid: 'sally', isserver: true };
 
     it('GET should return 404 because it doesn\'t exist yet (server)', function (done) {
       setupToken(sally);
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
@@ -222,6 +229,7 @@ describe('seagull', function () {
 
     it('GET should return 404 because it doesn\'t exist yet (same user id)', function (done) {
       setupToken();
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
@@ -236,6 +244,7 @@ describe('seagull', function () {
 
     it('GET should return 404 because it doesn\'t exist yet (with different user ids; with member permissions)', function (done) {
       setupToken();
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
       var userInGroupStub = sinon.stub(gatekeeperClient, 'userInGroup');
       userInGroupStub.callsArgWith(2, null, {'view': {}});
       supertest
@@ -354,8 +363,25 @@ describe('seagull', function () {
         });
     });
 
-    it('GET should return 200 and stored result on success', function (done) {
+    it('GET profile should return 200 and only fullName if not a trustor', function (done) {
       setupToken();
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
+      supertest
+        .get('/billy/profile')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals({"fullName": "Billy McBillface"});
+          expectToken('howdy');
+          done();
+        });
+    });
+
+    it('GET profile should return 200 and full stored result if a trustor', function (done) {
+      setupToken();
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}, 'billy': {view: {}}});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
@@ -364,6 +390,54 @@ describe('seagull', function () {
         function (err, res) {
           expect(err).to.not.exist;
           expect(res.body).deep.equals(metatest1);
+          expectToken('howdy');
+          done();
+        });
+    });
+
+    it('PUT non-profile should return a 200 on success (server)', function (done) {
+      setupToken();
+      supertest
+        .post('/billy/settings')
+        .send(settingstest)
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(settingstest);
+          expectToken('howdy');
+          done();
+        });
+    });
+
+    it('GET non-profile should return 401 if not a trustor', function (done) {
+      setupToken(sally);
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
+      supertest
+        .get('/billy/settings')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(401)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals('Unauthorized');
+          expectToken('howdy');
+          done();
+        });
+    });
+
+    it('GET non-profile should return 200 and full stored result if a trustor', function (done) {
+      setupToken(sally);
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}, 'billy': {view: {}}});
+      supertest
+        .get('/billy/settings')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(settingstest);
           expectToken('howdy');
           done();
         });
@@ -457,6 +531,7 @@ describe('seagull', function () {
 
     it('GET should return 200 and updated result on success', function (done) {
       setupToken();
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'billy': {root: {}}});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
