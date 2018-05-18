@@ -395,6 +395,22 @@ describe('seagull', function () {
         });
     });
 
+    it('GET profile should return 200 and full stored result if trustor is `hydrophone`', function (done) {
+      setupToken();
+      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {hydrophone: { root: {}}});
+      supertest
+        .get('/billy/profile')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(metatest1);
+          expectToken('howdy');
+          done();
+        });
+    });
+
     it('PUT non-profile should return a 200 on success (server)', function (done) {
       setupToken();
       supertest
