@@ -395,8 +395,23 @@ describe('seagull', function () {
         });
     });
 
+    it('GET profile should return 200 and full stored result if request is from the server', function (done) {
+      setupToken(sally);
+      supertest
+        .get('/billy/profile')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(metatest1);
+          expectToken('howdy');
+          done();
+        });
+    });
+
     it('PUT non-profile should return a 200 on success (server)', function (done) {
-      setupToken();
+      setupToken(sally);
       supertest
         .post('/billy/settings')
         .send(settingstest)
@@ -412,7 +427,7 @@ describe('seagull', function () {
     });
 
     it('GET non-profile should return 401 if not a trustor', function (done) {
-      setupToken(sally);
+      setupToken();
       sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
       supertest
         .get('/billy/settings')
@@ -428,8 +443,23 @@ describe('seagull', function () {
     });
 
     it('GET non-profile should return 200 and full stored result if a trustor', function (done) {
-      setupToken(sally);
+      setupToken();
       sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}, 'billy': {view: {}}});
+      supertest
+        .get('/billy/settings')
+        .set(sessionTokenHeader, 'howdy')
+        .expect(200)
+        .end(
+        function (err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).deep.equals(settingstest);
+          expectToken('howdy');
+          done();
+        });
+    });
+
+    it('GET non-profile should return 200 and full stored result if request is from the server', function (done) {
+      setupToken(sally);
       supertest
         .get('/billy/settings')
         .set(sessionTokenHeader, 'howdy')
