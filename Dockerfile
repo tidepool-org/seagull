@@ -12,8 +12,8 @@ RUN apk --no-cache update && \
     yarn cache clean && \
     apk del .build-dependencies
 
-COPY . .
-
 USER node
+
+COPY . .
 
 CMD ["npm", "start"]
