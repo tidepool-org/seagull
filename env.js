@@ -97,5 +97,7 @@ module.exports = (function() {
   // The local host to publish to discovery
   env.publishHost = config.fromEnvironment('PUBLISH_HOST');
 
+  env.skipHakken = config.fromEnvironment('SKIP_HAKKEN');
+
   return env;
 })();
