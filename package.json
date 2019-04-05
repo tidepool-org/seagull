@@ -39,8 +39,5 @@
     "mocha": "2.2.5",
     "salinity": "0.0.8",
     "supertest": "0.15.0"
-  },
-  "resolutions": {
-    "**/request/tough-cookie": "2.4.3"
   }
 }
