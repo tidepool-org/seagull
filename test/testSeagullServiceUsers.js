@@ -41,22 +41,22 @@ var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull/users', function () {
 
-  before(function(done) {
+  before(function (done) {
     seagull.start(done);
   });
 
-  after(function() {
+  after(function () {
     seagull.close();
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     mockableObject.reset(mockCrudHandler);
     mockableObject.reset(mockUserApiClient);
     mockableObject.reset(mockGatekeeperClient);
     mockableObject.reset(mockMetrics);
   });
 
-  describe('GET /users/:userid/users', function(done) {
+  describe('GET /users/:userid/users', function (done) {
 
     var alphaUser, alphaProfile, alphaTrustorPermissions, alphaTrusteePermissions, alphaDoc, alphaFinal;
     var bravoUser, bravoProfile, bravoTrustorPermissions, bravoTrusteePermissions, bravoDoc, bravoFinal;
@@ -113,7 +113,7 @@ describe('seagull/users', function () {
       checkTokenStub.withArgs(targetToken.userid).callsArgWith(1, null, targetToken);
       checkTokenStub.withArgs(custodianToken.userid).callsArgWith(1, null, custodianToken);
       checkTokenStub.withArgs(viewerToken.userid).callsArgWith(1, null, viewerToken);
-      checkTokenStub.callsArgWith(1, {statusCode: 401}, null);
+      checkTokenStub.callsArgWith(1, { statusCode: 401 }, null);
       userInGroupStub.withArgs(custodianToken.userid, targetUser.userid).callsArgWith(2, null, { custodian: {} });
       userInGroupStub.withArgs(viewerToken.userid, targetUser.userid).callsArgWith(2, null, { view: {} });
       groupsForUserStub.withArgs(targetUser.userid).callsArgWith(1, null, targetUser.groups);
@@ -125,9 +125,9 @@ describe('seagull/users', function () {
 
       sinon.stub(mockMetrics, 'postServer').callsArg(3);
       sinon.stub(mockMetrics, 'postThisUser').callsArg(3);
-   }
+    }
 
-    beforeEach(function() {
+    beforeEach(function () {
       setupData();
       setupStubs();
     });
@@ -144,8 +144,8 @@ describe('seagull/users', function () {
         .get(url)
         .set('x-tidepool-session-token', sessionTokenId)
         .expect(statusCode)
-        .end(function(err, res) {
-          _.forEach(expectations, function(expectation) {
+        .end(function (err, res) {
+          _.forEach(expectations, function (expectation) {
             expectation(err, res);
           });
           done(err);
@@ -265,7 +265,7 @@ describe('seagull/users', function () {
           [expectBodyWithEmptyObject, expectUserInGroupNotCalled, expectGroupsForUserNotCalled], done);
     });
 
-    describe('with token data', function() {
+    describe('with token data', function () {
       it('returns 401 with bogus session token', function(done) {
         sessionTokenId = 'bogus';
         expectUnauthorizedTest(targetUrl,
@@ -281,7 +281,7 @@ describe('seagull/users', function () {
       it('returns success and two shared users with no query, as user', function(done) {
         expectSuccessfulTest(targetUrl,
             [expectBodyWithAlphaAndBravo, expectUserInGroupNotCalled, expectGetDocForAlphaAndBravo], done);
-      });
+          });
 
       it('returns success and two shared users with no query, as server', function(done) {
         sessionTokenId = serverToken.userid;
@@ -301,9 +301,9 @@ describe('seagull/users', function () {
         test(targetUrl, 503, [expectBodyWithEmptyObject], done);
       });
 
-      describe('with trustor permissions data', function() {
-        it('returns failure with empty body due to error returned by groupsForUser', function(done) {
-          groupsForUserStub.withArgs(targetUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
+      describe('with trustor permissions data', function () {
+        it('returns failure with empty body due to error returned by groupsForUser', function (done) {
+          groupsForUserStub.withArgs(targetUser.userid).callsArgWith(1, { statusCode: 503, message: 'ERROR' }, null);
           test(targetUrl, 503, [expectBodyWithEmptyObject], done);
         });
 
@@ -312,321 +312,321 @@ describe('seagull/users', function () {
               [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
         });
 
-        it('returns success and one shared user with query for a specific trustor permission (upload)', function(done) {
+        it('returns success and one shared user with query for a specific trustor permission (upload)', function (done) {
           expectSuccessfulTest(targetUrl + '?trustorPermissions=upload',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
+            [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
         });
 
-        it('returns success and one shared user with query for multiple specific trustor permissions', function(done) {
-          expectSuccessfulTest(targetUrl + '?trustorPermissions=upload,view',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
-        });
-
-        it('returns success and one shared user with query for multiple specific trustor permissions', function(done) {
-          expectSuccessfulTest(targetUrl + '?trustorPermissions=upload,,,view',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
-        });
-
-        it('returns success and no shared users with query for an unknown trustor permission', function(done) {
-          expectSuccessfulTest(targetUrl + '?trustorPermissions=unknown',
-              [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
-        });
-
-        it('returns success and no shared users with query for multiple unknown trustor permissions', function(done) {
-          expectSuccessfulTest(targetUrl + '?trustorPermissions=unknown,,,view',
-              [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
-        });
-
-        it('returns failure with empty body due to trustor permissions of any and another', function(done) {
-          test(targetUrl + '?trustorPermissions=view,any', 400, [], done);
-        });
-
-        it('returns failure with empty body due to trustor permissions of none and another', function(done) {
-          test(targetUrl + '?trustorPermissions=view,none', 400, [], done);
-        });
-
-        it('returns failure with empty body due to trustor permissions of any and none', function(done) {
-          test(targetUrl + '?trustorPermissions=none,any', 400, [], done);
-        });
-
-        it('returns success and one shared user with query for trustor permissions of any', function(done) {
-          delete targetUser.groups[bravoUser.userid];
-          expectSuccessfulTest(targetUrl + '?trustorPermissions=any',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
-        });
-
-        it('returns success and one shared user with query for trustor permissions of none', function(done) {
-          delete targetUser.groups[alphaUser.userid];
-          delete alphaFinal.trustorPermissions;
-          delete alphaFinal.profile.patient;
-          expectSuccessfulTest(targetUrl + '?trustorPermissions=none',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
-        });
-
-        it('returns success and one shared user with query on multiple parameters that matches one (other missing permissions)', function(done) {
-          targetUser.groups[bravoUser.userid] = null;
-          expectSuccessfulTest(targetUrl + '?trustorPermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
-        });
-
-        describe('with trustee permissions data', function() {
-          it('returns failure with empty body due to error returned by usersInGroup', function(done) {
-            usersInGroupStub.withArgs(targetUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
-            test(targetUrl, 503, [expectBodyWithEmptyObject], done);
-          });
-
-          it('returns success and two shared users with query for a specific trustee permission (view)', function(done) {
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=view',
-                [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
-          });
-
-          it('returns success and one shared user with query for a specific trustee permission (upload)', function(done) {
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=upload',
-                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
-          });
-
-          it('returns success and one shared user with query for multiple specific trustee permissions', function(done) {
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=upload,view',
-                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
-          });
-
-          it('returns success and one shared user with query for multiple specific trustee permissions', function(done) {
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=upload,,,view',
-                [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
-          });
-
-          it('returns success and no shared users with query for an unknown trustee permission', function(done) {
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=unknown',
-                [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
-          });
-
-          it('returns success and no shared users with query for multiple unknown trustee permissions', function(done) {
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=unknown,,,view',
-                [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
-          });
-
-          it('returns failure with empty body due to trustee permissions of any and another', function(done) {
-            test(targetUrl + '?trusteePermissions=view,any', 400, [], done);
-          });
-
-          it('returns failure with empty body due to trustee permissions of none and another', function(done) {
-            test(targetUrl + '?trusteePermissions=view,none', 400, [], done);
-          });
-
-          it('returns failure with empty body due to trustee permissions of any and none', function(done) {
-            test(targetUrl + '?trusteePermissions=none,any', 400, [], done);
-          });
-
-          it('returns success and one shared user with query for trustee permissions of any', function(done) {
-            delete targetUser.users[bravoUser.userid];
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=any',
+          it('returns success and one shared user with query for multiple specific trustor permissions', function(done) {
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=upload,view',
                 [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
           });
 
-          it('returns success and one shared user with query for trustee permissions of none', function(done) {
-            delete targetUser.users[alphaUser.userid];
-            delete alphaFinal.trusteePermissions;
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=none',
+          it('returns success and one shared user with query for multiple specific trustor permissions', function(done) {
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=upload,,,view',
+                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and no shared users with query for an unknown trustor permission', function(done) {
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=unknown',
+                [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
+          });
+
+          it('returns success and no shared users with query for multiple unknown trustor permissions', function(done) {
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=unknown,,,view',
+                [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
+          });
+
+          it('returns failure with empty body due to trustor permissions of any and another', function(done) {
+            test(targetUrl + '?trustorPermissions=view,any', 400, [], done);
+          });
+
+          it('returns failure with empty body due to trustor permissions of none and another', function(done) {
+            test(targetUrl + '?trustorPermissions=view,none', 400, [], done);
+          });
+
+          it('returns failure with empty body due to trustor permissions of any and none', function(done) {
+            test(targetUrl + '?trustorPermissions=none,any', 400, [], done);
+          });
+
+          it('returns success and one shared user with query for trustor permissions of any', function(done) {
+            delete targetUser.groups[bravoUser.userid];
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=any',
+                [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and one shared user with query for trustor permissions of none', function(done) {
+            delete targetUser.groups[alphaUser.userid];
+            delete alphaFinal.trustorPermissions;
+            delete alphaFinal.profile.patient;
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=none',
                 [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
           });
 
           it('returns success and one shared user with query on multiple parameters that matches one (other missing permissions)', function(done) {
-            targetUser.users[bravoUser.userid] = null;
-            expectSuccessfulTest(targetUrl + '?trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+            targetUser.groups[bravoUser.userid] = null;
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
                 [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
+      });
+
+      describe('with trustee permissions data', function () {
+        it('returns failure with empty body due to error returned by usersInGroup', function(done) {
+          usersInGroupStub.withArgs(targetUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
+          test(targetUrl, 503, [expectBodyWithEmptyObject], done);
+        });
+
+        it('returns success and two shared users with query for a specific trustee permission (view)', function(done) {
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=view',
+              [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
+        });
+
+        it('returns success and one shared user with query for a specific trustee permission (upload)', function(done) {
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=upload',
+              [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
+        });
+
+        it('returns success and one shared user with query for multiple specific trustee permissions', function(done) {
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=upload,view',
+              [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
+        });
+
+        it('returns success and one shared user with query for multiple specific trustee permissions', function(done) {
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=upload,,,view',
+              [expectBodyWithBravo, expectUsersInGroup, expectGetUserInfoForBravo, expectGetDocForBravo], done);
+        });
+
+        it('returns success and no shared users with query for an unknown trustee permission', function(done) {
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=unknown',
+              [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
+        });
+
+        it('returns success and no shared users with query for multiple unknown trustee permissions', function(done) {
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=unknown,,,view',
+              [expectBodyWithEmptyArray, expectUsersInGroup, expectGetUserInfoNotCalled], done);
+        });
+
+        it('returns failure with empty body due to trustee permissions of any and another', function(done) {
+          test(targetUrl + '?trusteePermissions=view,any', 400, [], done);
+        });
+
+        it('returns failure with empty body due to trustee permissions of none and another', function(done) {
+          test(targetUrl + '?trusteePermissions=view,none', 400, [], done);
+        });
+
+        it('returns failure with empty body due to trustee permissions of any and none', function(done) {
+          test(targetUrl + '?trusteePermissions=none,any', 400, [], done);
+        });
+
+        it('returns success and one shared user with query for trustee permissions of any', function(done) {
+          delete targetUser.users[bravoUser.userid];
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=any',
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
+        });
+
+        it('returns success and one shared user with query for trustee permissions of none', function(done) {
+          delete targetUser.users[alphaUser.userid];
+          delete alphaFinal.trusteePermissions;
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=none',
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
+        });
+
+        it('returns success and one shared user with query on multiple parameters that matches one (other missing permissions)', function(done) {
+          targetUser.users[bravoUser.userid] = null;
+          expectSuccessfulTest(targetUrl + '?trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+              [expectBodyWithAlpha, expectUsersInGroup, expectGetUserInfoForAlpha, expectGetDocForAlpha], done);
+        });
+
+        describe('with user data', function () {
+          it('returns failure with empty body due to error returned by getUserInfo', function(done) {
+            getUserInfoStub.withArgs(alphaUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
+            test(targetUrl, 503, [expectBodyWithEmptyObject], done);
           });
 
-          describe('with user data', function() {
-            it('returns failure with empty body due to error returned by getUserInfo', function(done) {
-              getUserInfoStub.withArgs(alphaUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
+          it('returns failure with empty body due to null user returned by getUserInfo', function(done) {
+            getUserInfoStub.withArgs(alphaUser.userid).callsArgWith(1, null, null);
+            test(targetUrl, 500, [expectBodyWithEmptyObject], done);
+          });
+
+          it('returns success and two shared users with query for a case-insensitive partial email that matches both', function(done) {
+            expectSuccessfulTest(targetUrl + '?email=TIDEPOOL.ORG',
+                [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
+          });
+
+          it('returns success and one shared user with query for a specific, case-insensitive email that matches one', function(done) {
+            expectSuccessfulTest(targetUrl + '?email=ALPHA@TIDEPOOL.org',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and no shared users with query for an unknown email that matches none', function(done) {
+            expectSuccessfulTest(targetUrl + '?email=unknown.org',
+                [expectBodyWithEmptyArray, expectGetUserInfoForAlphaAndBravo], done);
+          });
+
+          it('returns success and one shared user with query for email verified (TruE)', function(done) {
+            expectSuccessfulTest(targetUrl + '?emailVerified=TruE',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and one shared user with query for email verified (YeS)', function(done) {
+            expectSuccessfulTest(targetUrl + '?emailVerified=YeS',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and one shared user with query for email verified (Y)', function(done) {
+            expectSuccessfulTest(targetUrl + '?emailVerified=Y',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and one shared user with query for email verified (1)', function(done) {
+            expectSuccessfulTest(targetUrl + '?emailVerified=1',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and one shared user with query for email not verified (FalsE)', function(done) {
+            expectSuccessfulTest(targetUrl + '?emailVerified=FalsE',
+                [expectBodyWithBravo, expectGetUserInfoForAlphaAndBravo, expectGetDocForBravo], done);
+          });
+
+          it('returns success and one shared user with query for email not verified (0)', function(done) {
+            expectSuccessfulTest(targetUrl + '?emailVerified=0',
+                [expectBodyWithBravo, expectGetUserInfoForAlphaAndBravo, expectGetDocForBravo], done);
+          });
+
+          it('returns success and one shared user with query for email not verified (AnythinG)', function(done) {
+            expectSuccessfulTest(targetUrl + '?emailVerified=AnythinG',
+                [expectBodyWithBravo, expectGetUserInfoForAlphaAndBravo, expectGetDocForBravo], done);
+          });
+
+          it('returns success and two shared users with query for a partial terms accepted that matches both', function(done) {
+            expectSuccessfulTest(targetUrl + '?termsAccepted=20',
+                [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
+          });
+
+          it('returns success and two shared users with query for a partial terms accepted that matches both (case insensitive)', function(done) {
+            expectSuccessfulTest(targetUrl + '?termsAccepted=t',
+                [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
+          });
+
+          it('returns success and one shared user with query for a partial terms accepted that matches one', function(done) {
+            expectSuccessfulTest(targetUrl + '?termsAccepted=2016',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and one shared user with query for a specific terms accepted', function(done) {
+            expectSuccessfulTest(targetUrl + '?termsAccepted=2016-01-01T12:00:00-07:00',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and no shared users with query for a terms accepted that does not match', function(done) {
+            expectSuccessfulTest(targetUrl + '?termsAccepted=9999',
+                [expectBodyWithEmptyArray, expectGetUserInfoForAlphaAndBravo, expectGetDocNotCalled], done);
+          });
+
+          it('returns success and one shared user with query on multiple parameters that matches one (other missing username)', function(done) {
+            bravoUser.username = null;
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          it('returns success and one shared user with query on multiple parameters that matches one (other missing termsAccepted)', function(done) {
+            bravoUser.termsAccepted = null;
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+                [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+          });
+
+          describe('with profile data', function() {
+            it('returns failure with empty body due to error returned by getDoc', function(done) {
+              getDocStub.withArgs(alphaUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
               test(targetUrl, 503, [expectBodyWithEmptyObject], done);
             });
 
-            it('returns failure with empty body due to null user returned by getUserInfo', function(done) {
-              getUserInfoStub.withArgs(alphaUser.userid).callsArgWith(1, null, null);
-              test(targetUrl, 500, [expectBodyWithEmptyObject], done);
+            it('returns success and one shared user due to not found error returned by getDoc for one user', function(done) {
+              getDocStub.withArgs(bravoUser.userid).callsArgWith(1, {statusCode: 404}, null);
+              expectSuccessfulTest(targetUrl + '?name=A',
+                  [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
             });
 
-            it('returns success and two shared users with query for a case-insensitive partial email that matches both', function(done) {
-              expectSuccessfulTest(targetUrl + '?email=TIDEPOOL.ORG',
+            it('returns success and two shared users with query for a partial name that matches both', function(done) {
+              expectSuccessfulTest(targetUrl + '?name=A',
                   [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
             });
 
-            it('returns success and one shared user with query for a specific, case-insensitive email that matches one', function(done) {
-              expectSuccessfulTest(targetUrl + '?email=ALPHA@TIDEPOOL.org',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
+            it('returns success and one shared user with query for a partial name that matches one', function(done) {
+              expectSuccessfulTest(targetUrl + '?name=LpH',
+                  [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
             });
 
-            it('returns success and no shared users with query for an unknown email that matches none', function(done) {
-              expectSuccessfulTest(targetUrl + '?email=unknown.org',
-                  [expectBodyWithEmptyArray, expectGetUserInfoForAlphaAndBravo], done);
+            it('returns success and no shared users with query for a partial name that matches none', function(done) {
+              expectSuccessfulTest(targetUrl + '?name=AbC',
+                  [expectBodyWithEmptyArray, expectGetDocForAlphaAndBravo], done);
             });
 
-            it('returns success and one shared user with query for email verified (TruE)', function(done) {
-              expectSuccessfulTest(targetUrl + '?emailVerified=TruE',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
-            });
-
-            it('returns success and one shared user with query for email verified (YeS)', function(done) {
-              expectSuccessfulTest(targetUrl + '?emailVerified=YeS',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
-            });
-
-            it('returns success and one shared user with query for email verified (Y)', function(done) {
-              expectSuccessfulTest(targetUrl + '?emailVerified=Y',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
-            });
-
-            it('returns success and one shared user with query for email verified (1)', function(done) {
-              expectSuccessfulTest(targetUrl + '?emailVerified=1',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
-            });
-
-            it('returns success and one shared user with query for email not verified (FalsE)', function(done) {
-              expectSuccessfulTest(targetUrl + '?emailVerified=FalsE',
-                  [expectBodyWithBravo, expectGetUserInfoForAlphaAndBravo, expectGetDocForBravo], done);
-            });
-
-            it('returns success and one shared user with query for email not verified (0)', function(done) {
-              expectSuccessfulTest(targetUrl + '?emailVerified=0',
-                  [expectBodyWithBravo, expectGetUserInfoForAlphaAndBravo, expectGetDocForBravo], done);
-            });
-
-            it('returns success and one shared user with query for email not verified (AnythinG)', function(done) {
-              expectSuccessfulTest(targetUrl + '?emailVerified=AnythinG',
-                  [expectBodyWithBravo, expectGetUserInfoForAlphaAndBravo, expectGetDocForBravo], done);
-            });
-
-            it('returns success and two shared users with query for a partial terms accepted that matches both', function(done) {
-              expectSuccessfulTest(targetUrl + '?termsAccepted=20',
+            it('returns success and two shared users with query for a partial birthday that matches both', function(done) {
+              expectSuccessfulTest(targetUrl + '?birthday=-30',
                   [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
             });
 
-            it('returns success and two shared users with query for a partial terms accepted that matches both (case insensitive)', function(done) {
-              expectSuccessfulTest(targetUrl + '?termsAccepted=t',
+            it('returns success and one shared user with query for a partial birthday that matches one', function(done) {
+              expectSuccessfulTest(targetUrl + '?birthday=-11-',
+                  [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
+            });
+
+            it('returns success and no shared users with query for a partial birthday that matches none', function(done) {
+              expectSuccessfulTest(targetUrl + '?birthday=1900-',
+                  [expectBodyWithEmptyArray, expectGetDocForAlphaAndBravo], done);
+            });
+
+            it('returns success and two shared users with query for a partial diagnosis date that matches both', function(done) {
+              expectSuccessfulTest(targetUrl + '?diagnosisDate=-31',
                   [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
             });
 
-            it('returns success and one shared user with query for a partial terms accepted that matches one', function(done) {
-              expectSuccessfulTest(targetUrl + '?termsAccepted=2016',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
-            });
+            it('returns success and one shared user with query for a partial diagnosis date that matches one', function(done) {
+              expectSuccessfulTest(targetUrl + '?diagnosisDate=-12-',
+                  [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
+          });
 
-            it('returns success and one shared user with query for a specific terms accepted', function(done) {
-              expectSuccessfulTest(targetUrl + '?termsAccepted=2016-01-01T12:00:00-07:00',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
-            });
+          it('returns success and no shared users with query for a partial diagnosis date that matches none', function(done) {
+            expectSuccessfulTest(targetUrl + '?diagnosisDate=1900-',
+                [expectBodyWithEmptyArray, expectGetDocForAlphaAndBravo], done);
+          });
 
-            it('returns success and no shared users with query for a terms accepted that does not match', function(done) {
-              expectSuccessfulTest(targetUrl + '?termsAccepted=9999',
-                  [expectBodyWithEmptyArray, expectGetUserInfoForAlphaAndBravo, expectGetDocNotCalled], done);
-            });
+          it('returns success and two shared users with query on multiple parameters that matches both', function(done) {
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+                [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
+          });
 
-            it('returns success and one shared user with query on multiple parameters that matches one (other missing username)', function(done) {
-              bravoUser.username = null;
-              expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
-            });
+          it('returns success and one shared user with query on multiple parameters that matches one (other missing fullName)', function(done) {
+            bravoDoc.detail.profile.fullName = null;
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+                [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
+          });
 
-            it('returns success and one shared user with query on multiple parameters that matches one (other missing termsAccepted)', function(done) {
-              bravoUser.termsAccepted = null;
-              expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                  [expectBodyWithAlpha, expectGetUserInfoForAlphaAndBravo, expectGetDocForAlpha], done);
-            });
+          it('returns success and one shared user with query on multiple parameters that matches one (other missing patient)', function(done) {
+            bravoDoc.detail.profile.patient = null;
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+                [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
+          });
 
-            describe('with profile data', function() {
-              it('returns failure with empty body due to error returned by getDoc', function(done) {
-                getDocStub.withArgs(alphaUser.userid).callsArgWith(1, {statusCode: 503, message: 'ERROR'}, null);
-                test(targetUrl, 503, [expectBodyWithEmptyObject], done);
-              });
+          it('returns success and one shared user with query on multiple parameters that matches one (other missing birthday)', function(done) {
+            bravoDoc.detail.profile.patient.birthday = null;
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+                [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
+          });
 
-              it('returns success and one shared user due to not found error returned by getDoc for one user', function(done) {
-                getDocStub.withArgs(bravoUser.userid).callsArgWith(1, {statusCode: 404}, null);
-                expectSuccessfulTest(targetUrl + '?name=A',
-                    [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
-              });
+          it('returns success and one shared user with query on multiple parameters that matches one (other missing diagnosis date)', function(done) {
+            bravoDoc.detail.profile.patient.diagnosisDate = null;
+            expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
+                [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
+          });
 
-              it('returns success and two shared users with query for a partial name that matches both', function(done) {
-                expectSuccessfulTest(targetUrl + '?name=A',
-                    [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and one shared user with query for a partial name that matches one', function(done) {
-                expectSuccessfulTest(targetUrl + '?name=LpH',
-                    [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and no shared users with query for a partial name that matches none', function(done) {
-                expectSuccessfulTest(targetUrl + '?name=AbC',
-                    [expectBodyWithEmptyArray, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and two shared users with query for a partial birthday that matches both', function(done) {
-                expectSuccessfulTest(targetUrl + '?birthday=-30',
-                    [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and one shared user with query for a partial birthday that matches one', function(done) {
-                expectSuccessfulTest(targetUrl + '?birthday=-11-',
-                    [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and no shared users with query for a partial birthday that matches none', function(done) {
-                expectSuccessfulTest(targetUrl + '?birthday=1900-',
-                    [expectBodyWithEmptyArray, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and two shared users with query for a partial diagnosis date that matches both', function(done) {
-                expectSuccessfulTest(targetUrl + '?diagnosisDate=-31',
-                    [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and one shared user with query for a partial diagnosis date that matches one', function(done) {
-                expectSuccessfulTest(targetUrl + '?diagnosisDate=-12-',
-                    [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and no shared users with query for a partial diagnosis date that matches none', function(done) {
-                expectSuccessfulTest(targetUrl + '?diagnosisDate=1900-',
-                    [expectBodyWithEmptyArray, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and two shared users with query on multiple parameters that matches both', function(done) {
-                expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                    [expectBodyWithAlphaAndBravo, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and one shared user with query on multiple parameters that matches one (other missing fullName)', function(done) {
-                bravoDoc.detail.profile.fullName = null;
-                expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                    [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and one shared user with query on multiple parameters that matches one (other missing patient)', function(done) {
-                bravoDoc.detail.profile.patient = null;
-                expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                    [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and one shared user with query on multiple parameters that matches one (other missing birthday)', function(done) {
-                bravoDoc.detail.profile.patient.birthday = null;
-                expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                    [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and one shared user with query on multiple parameters that matches one (other missing diagnosis date)', function(done) {
-                bravoDoc.detail.profile.patient.diagnosisDate = null;
-                expectSuccessfulTest(targetUrl + '?trustorPermissions=view&trusteePermissions=view&email=TIDEPOOL.ORG&termsAccepted=20&name=A&birthday=-30&diagnosisDate=-31',
-                    [expectBodyWithAlpha, expectGetDocForAlphaAndBravo], done);
-              });
-
-              it('returns success and two shared users with no query, without patient data', function(done) {
-                targetUser.groups[bravoUser.userid] = {};
-                delete bravoFinal.profile.patient;
-                bravoFinal.trustorPermissions = {};
-                expectSuccessfulTest(targetUrl,
-                    [expectBodyWithAlphaAndBravo, expectUserInGroupNotCalled, expectGetDocForAlphaAndBravo], done);
-              });
+          it('returns success and two shared users with no query, without patient data', function(done) {
+            targetUser.groups[bravoUser.userid] = {};
+            delete bravoFinal.profile.patient;
+            bravoFinal.trustorPermissions = {};
+            expectSuccessfulTest(targetUrl,
+                [expectBodyWithAlphaAndBravo, expectUserInGroupNotCalled, expectGetDocForAlphaAndBravo], done);
+          });
             });
           });
         });

@@ -80,8 +80,8 @@ describe('seagull', function () {
           return done(err);
         }
         expect(err).to.not.exist;
-        expect(obj.res.body.down).to.eql([]);
-        expect(obj.res.body.up).to.eql(['mongo']);
+        expect(obj.body.down).to.eql([]);
+        expect(obj.body.up).to.eql(['mongo']);
         done();
       });
   });
@@ -98,7 +98,7 @@ describe('seagull', function () {
           return done(err);
         }
         expect(err).to.not.exist;
-        expect(obj.res.body).deep.equals(['profile', 'groups', 'private']);
+        expect(obj.body).deep.equals(['profile', 'groups', 'private']);
         done();
       });
   });
