@@ -31,7 +31,7 @@ var env = {
   httpPort: 21000,
 };
 
-var mockCrudHandler = mockableObject.make('getDoc');
+var mockCrudHandler = mockableObject.make('getDoc', 'closeDatabase');
 var mockUserApiClient = mockableObject.make('checkToken', 'getAnonymousPair', 'getUserInfo');
 var mockGatekeeperClient = mockableObject.make('userInGroup', 'groupsForUser', 'usersInGroup');
 var mockMetrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
@@ -99,10 +99,11 @@ describe('seagull/users', function () {
       targetUrl = '/users/' + targetUser.userid + '/users';
     }
 
-    var getDocStub, checkTokenStub, getUserInfoStub, userInGroupStub, groupsForUserStub, usersInGroupStub;
+    var getDocStub, closeDbStub, checkTokenStub, getUserInfoStub, userInGroupStub, groupsForUserStub, usersInGroupStub;
 
     function setupStubs() {
       getDocStub = sinon.stub(mockCrudHandler, 'getDoc');
+      closeDbStub = sinon.stub(mockCrudHandler, 'closeDatabase');
       checkTokenStub = sinon.stub(mockUserApiClient, 'checkToken');
       getUserInfoStub = sinon.stub(mockUserApiClient, 'getUserInfo');
       userInGroupStub = sinon.stub(mockGatekeeperClient, 'userInGroup');

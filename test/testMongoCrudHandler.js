@@ -84,6 +84,10 @@ describe('metadb:', function () {
       metadb._wipeTheEntireDatabase(done);
     });
 
+    after(function () {
+      metadb.closeDatabase();
+    });
+
     var userId1 = '6fad283648';
     var userId2 = '36486fad28';
     var metatest1 = {
