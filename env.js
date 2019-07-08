@@ -58,9 +58,6 @@ module.exports = (function() {
 
   env.mongoConnectionString = cs('seagull')
 
-  // Configurable salt for password encryption
-  env.saltDeploy = config.fromEnvironment('SALT_DEPLOY');
-
   env.metrics = {
     // The config object to discover highwater (the metrics API).
     // This is just passed through to hakken.watchFromConfig()

@@ -34,7 +34,6 @@ var env = {
   mongoConnectionString: 'mongodb://localhost/seagull_test',
   // the special config value we pass for testing will enable us to wipe the database
   _wipeTheEntireDatabase: true,
-  saltDeploy: 'randomsaltvalue',
   logger: { error: console.log, warn: console.log, info: console.log }
 };
 
