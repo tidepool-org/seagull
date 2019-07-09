@@ -29,7 +29,6 @@ var metadb = require('../lib/mongoCrudHandler.js')({
   // the special config value we pass for testing will enable us to wipe the database
   _wipeTheEntireDatabase: true,
   adminKey: 'specialkey',
-  saltDeploy: 'randomsaltvalue',
   logger: {
     error: console.log,
     warn: console.log,
