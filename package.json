@@ -1,6 +1,6 @@
 {
   "name": "seagull",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "API for managing user metadata.",
   "main": "lib/index.js",
   "directories": {
@@ -15,7 +15,7 @@
   "author": "Tidepool",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "amoeba": "0.4.7",
+    "amoeba": "0.5.0",
     "async": "3.0.1",
     "bunyan": "1.8.12",
     "crypto-js": "3.1.8",
@@ -25,8 +25,8 @@
     "request": "2.88.0",
     "restify": "8.3.3",
     "restify-errors": "8.0.0",
-    "tidepool-gatekeeper": "0.2.3",
-    "user-api-client": "0.4.2"
+    "tidepool-gatekeeper": "0.2.4",
+    "user-api-client": "0.4.3"
   },
   "devDependencies": {
     "grunt": "1.0.4",
