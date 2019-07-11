@@ -20,7 +20,7 @@
 
 var fs = require('fs');
 var config = require('amoeba').config;
-var cs = require('amoeba').mongoUtils.toConnectionString;
+var cs = require('amoeba').mongoUtil.toConnectionString;
 
 function maybeReplaceWithContentsOfFile(obj, field)
 {
