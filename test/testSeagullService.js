@@ -34,7 +34,6 @@ var env = {
   mongoConnectionString: 'mongodb://localhost/seagull_test',
   // the special config value we pass for testing will enable us to wipe the database
   _wipeTheEntireDatabase: true,
-  saltDeploy: 'randomsaltvalue',
   logger: { error: console.log, warn: console.log, info: console.log }
 };
 
@@ -80,8 +79,8 @@ describe('seagull', function () {
           return done(err);
         }
         expect(err).to.not.exist;
-        expect(obj.res.body.down).to.eql([]);
-        expect(obj.res.body.up).to.eql(['mongo']);
+        expect(obj.body.down).to.eql([]);
+        expect(obj.body.up).to.eql(['mongo']);
         done();
       });
   });
@@ -98,7 +97,7 @@ describe('seagull', function () {
           return done(err);
         }
         expect(err).to.not.exist;
-        expect(obj.res.body).deep.equals(['profile', 'groups', 'private']);
+        expect(obj.body).deep.equals(['profile', 'groups', 'private']);
         done();
       });
   });
