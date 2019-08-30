@@ -12,7 +12,7 @@ RUN apk add --no-cache --virtual .build-dependencies git && \
     apk del .build-dependencies
 USER node
 COPY --chown=node:node . .
-CMD ["npm", "run", "startWatch"]
+CMD ["npm", "start"]
 
 FROM development as production
 CMD ["npm", "start"]
