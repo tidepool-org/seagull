@@ -11,19 +11,19 @@ cache:
     - node_modules
 
 before_install:
-  if [[ `npm -v` != 6* ]]; then npm install -g npm@6; fi
-  curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.17.3
-  export PATH="$HOME/.yarn/bin:$PATH"
-  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5;
-  echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list;
-  sudo apt-get update;
-  sudo apt-get install --allow-unauthenticated -y mongodb-org=3.6.12 mongodb-org-server=3.6.12 mongodb-org-shell=3.6.12 mongodb-org-mongos=3.6.12 mongodb-org-tools=3.6.12;
-  sudo service mongod start;
+  - if [[ `npm -v` != 6* ]]; then npm install -g npm@6; fi
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.17.3
+  - export PATH="$HOME/.yarn/bin:$PATH"
 
 install:
   - yarn install --frozen-lockfile
 
 addons:
+  apt:
+    sources:
+      - mongodb-3.2-trusty
+    packages:
+      - mongodb-org-server
   artifacts:
     s3_region: us-west-2
     paths:
