@@ -36,12 +36,15 @@ var mockUserApiClient = mockableObject.make('checkToken', 'getAnonymousPair', 'g
 var mockGatekeeperClient = mockableObject.make('userInGroup', 'groupsForUser', 'usersInGroup');
 var mockMetrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
 
-var seagull = require('../lib/seagullService.js')(env, mockCrudHandler, mockUserApiClient, mockGatekeeperClient, mockMetrics);
+var consumer = mockableObject.make('start', 'stop');
+var seagull = require('../lib/seagullService.js')(env, mockCrudHandler, mockUserApiClient, mockGatekeeperClient, mockMetrics, consumer);
 var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull/users', function () {
 
   before(function (done) {
+    sinon.stub(consumer, 'start');
+    sinon.stub(consumer, 'stop', () => Promise.resolve());
     seagull.start(done);
   });
 

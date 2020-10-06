@@ -40,9 +40,10 @@ var env = {
 var userApiClient = mockableObject.make('checkToken', 'getAnonymousPair');
 var gatekeeperClient = mockableObject.make('userInGroup', 'groupsForUser');
 var metrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
+var consumer = mockableObject.make('start', 'stop');
 
 var dbmongo = require('../lib/mongoCrudHandler.js')(env);
-var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, gatekeeperClient, metrics);
+var seagull = require('../lib/seagullService.js')(env, dbmongo, userApiClient, gatekeeperClient, metrics, consumer);
 var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull', function () {
@@ -52,18 +53,23 @@ describe('seagull', function () {
       if (err != null) {
         throw err;
       }
+      sinon.stub(consumer, 'start');
       seagull.start(done);
+      expect(consumer.start).to.have.been.calledOnce;
     });
   });
 
   after(function () {
+    sinon.stub(consumer, 'stop', () => Promise.resolve());
     seagull.close();
+    expect(consumer.stop).to.have.been.calledOnce;
   });
 
   beforeEach(function () {
     mockableObject.reset(userApiClient);
     mockableObject.reset(metrics);
     mockableObject.reset(gatekeeperClient);
+    mockableObject.reset(consumer);
     sinon.stub(metrics, 'postServer').callsArg(3);
     sinon.stub(metrics, 'postWithUser').callsArg(3);
     sinon.stub(metrics, 'postThisUser').callsArg(3);
