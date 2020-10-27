@@ -56,7 +56,7 @@ module.exports = (function() {
     throw new Error('Must specify either PORT or HTTPS_PORT in your environment.');
   }
 
-  env.mongoConnectionString = cs('seagull')
+  env.mongoConnectionString = cs('seagull');
 
   env.metrics = {
     // The config object to discover highwater (the metrics API).

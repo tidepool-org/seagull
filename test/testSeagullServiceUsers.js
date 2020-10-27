@@ -443,7 +443,7 @@ describe('seagull/users', function () {
             expectSuccessfulTest(targetUrl, [expectBodyWithEmptyArray], done);
           });
 
-          it('returns failure with empty body due to single null user returned by getUsersWithIds', function(done) {
+          it('returns success with the first user when the second one is not returned by getUsersWithIds', function(done) {
             getUsersWithIdsStub.withArgs([alphaUser.userid, bravoUser.userid]).callsArgWith(1, null, [alphaUser]);
             expectSuccessfulTest(targetUrl, [expectBodyWithAlpha, expectGetDocForAlpha], done);
           });
