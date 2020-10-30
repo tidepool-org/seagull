@@ -36,12 +36,15 @@ var mockUserApiClient = mockableObject.make('checkToken', 'getAnonymousPair', 'g
 var mockGatekeeperClient = mockableObject.make('userInGroup', 'groupsForUser', 'usersInGroup');
 var mockMetrics = mockableObject.make('postServer', 'postThisUser', 'postWithUser');
 
-var seagull = require('../lib/seagullService.js')(env, mockCrudHandler, mockUserApiClient, mockGatekeeperClient, mockMetrics);
+var consumer = mockableObject.make('start', 'stop');
+var seagull = require('../lib/seagullService.js')(env, mockCrudHandler, mockUserApiClient, mockGatekeeperClient, mockMetrics, consumer);
 var supertest = require('supertest')('http://localhost:' + env.httpPort);
 
 describe('seagull/users', function () {
 
   before(function (done) {
+    sinon.stub(consumer, 'start');
+    sinon.stub(consumer, 'stop', () => Promise.resolve());
     seagull.start(done);
   });
 
@@ -435,14 +438,14 @@ describe('seagull/users', function () {
             test(targetUrl, 500, [expectBodyWithEmptyObject], done);
           });
 
-          it('returns failure with empty body due to null returned by getUsersWithIds', function(done) {
+          it('returns success with empty array when null returned by getUsersWithIds', function(done) {
             getUsersWithIdsStub.withArgs([alphaUser.userid, bravoUser.userid]).callsArgWith(1, null, null);
-            test(targetUrl, 500, [expectBodyWithEmptyObject], done);
+            expectSuccessfulTest(targetUrl, [expectBodyWithEmptyArray], done);
           });
 
-          it('returns failure with empty body due to single null user returned by getUsersWithIds', function(done) {
+          it('returns success with the first user when the second one is not returned by getUsersWithIds', function(done) {
             getUsersWithIdsStub.withArgs([alphaUser.userid, bravoUser.userid]).callsArgWith(1, null, [alphaUser]);
-            test(targetUrl, 500, [expectBodyWithEmptyObject], done);
+            expectSuccessfulTest(targetUrl, [expectBodyWithAlpha, expectGetDocForAlpha], done);
           });
 
           it('returns success and two shared users with query for a case-insensitive partial email that matches both', function(done) {
