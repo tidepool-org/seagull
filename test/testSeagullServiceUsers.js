@@ -49,7 +49,7 @@ describe('seagull/users', function () {
   });
 
   after(function () {
-    seagull.close();
+    seagull.onShutdown()
   });
 
   beforeEach(function () {
@@ -227,7 +227,7 @@ describe('seagull/users', function () {
       const asyncFunc = sinon.match(function (actual) {
         return sinon.typeOf(actual) === 'asyncfunction';
       }, 'typeOf(asyncfunction)');
-    
+
       expect(mockGatekeeperClient.usersInGroup).to.have.been.calledWithExactly(targetUser.userid, asyncFunc);
     }
 

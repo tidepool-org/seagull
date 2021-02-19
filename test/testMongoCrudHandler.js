@@ -61,9 +61,6 @@ describe('metadb:', function () {
     it('should have an app', function () {
       expect(metadb).to.exist;
     });
-    it('should have status method', function () {
-      expect(metadb).to.respondTo('status');
-    });
     it('should have createDoc method', function () {
       expect(metadb).to.respondTo('createDoc');
     });
@@ -97,15 +94,6 @@ describe('metadb:', function () {
       shortname: 'Boo',
       bio: 'Haunting is my game.'
     };
-
-    it('should have a good status return', function (done) {
-      metadb.status(function (err, result) {
-        shouldSucceed(err, result, 200);
-        expect(result.running).to.be.true;
-        expect(result.deps.down).to.be.empty;
-        done();
-      });
-    });
 
     describe('encryption', function() {
       var plaintext = 'this is a string to encrypt';

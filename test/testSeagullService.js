@@ -61,7 +61,7 @@ describe('seagull', function () {
 
   after(function () {
     sinon.stub(consumer, 'stop', () => Promise.resolve());
-    seagull.close();
+    seagull.onShutdown()
     expect(consumer.stop).to.have.been.calledOnce;
   });
 
@@ -80,13 +80,11 @@ describe('seagull', function () {
       .get('/status')
       .expect(200)
       .end(
-      function (err, obj) {
+      function (err) {
         if (err) {
           return done(err);
         }
         expect(err).to.not.exist;
-        expect(obj.body.down).to.eql([]);
-        expect(obj.body.up).to.eql(['mongo']);
         done();
       });
   });
