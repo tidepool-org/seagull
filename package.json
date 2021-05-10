@@ -22,7 +22,7 @@
     "crypto-js": "4.0.0",
     "hakken": "0.1.12",
     "kafkajs": "^1.14.0",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "mongojs": "3.1.0",
     "request": "2.88.0",
     "restify": "8.5.1",
