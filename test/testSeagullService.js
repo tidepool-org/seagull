@@ -217,7 +217,7 @@ describe('seagull', function () {
 
     it('GET should return 404 because it doesn\'t exist yet (server)', function (done) {
       setupToken(sally);
-      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
+      sinon.stub(gatekeeperClient, 'userInGroup').callsArgWith(2, null, {root: {}});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
@@ -232,7 +232,7 @@ describe('seagull', function () {
 
     it('GET should return 404 because it doesn\'t exist yet (same user id)', function (done) {
       setupToken();
-      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
+      sinon.stub(gatekeeperClient, 'userInGroup').callsArgWith(2, null, {root: {}});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
@@ -368,7 +368,7 @@ describe('seagull', function () {
 
     it('GET profile should return 200 and only fullName if not a trustor', function (done) {
       setupToken();
-      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
+      sinon.stub(gatekeeperClient, 'userInGroup').callsArgWith(2, null, {});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
@@ -384,7 +384,7 @@ describe('seagull', function () {
 
     it('GET profile should return 200 and full stored result if a trustor', function (done) {
       setupToken();
-      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}, 'billy': {view: {}}});
+      sinon.stub(gatekeeperClient, 'userInGroup').callsArgWith(2, null, {view: {}});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
@@ -431,7 +431,7 @@ describe('seagull', function () {
 
     it('GET non-profile should return 401 if not a trustor', function (done) {
       setupToken();
-      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}});
+      sinon.stub(gatekeeperClient, 'userInGroup').callsArgWith(2, null, {});
       supertest
         .get('/billy/settings')
         .set(sessionTokenHeader, 'howdy')
@@ -447,7 +447,7 @@ describe('seagull', function () {
 
     it('GET non-profile should return 200 and full stored result if a trustor', function (done) {
       setupToken();
-      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'sally': {root: {}}, 'billy': {view: {}}});
+      sinon.stub(gatekeeperClient, 'userInGroup').callsArgWith(2, null, {view: {}});
       supertest
         .get('/billy/settings')
         .set(sessionTokenHeader, 'howdy')
@@ -564,7 +564,7 @@ describe('seagull', function () {
 
     it('GET should return 200 and updated result on success', function (done) {
       setupToken();
-      sinon.stub(gatekeeperClient, 'groupsForUser').callsArgWith(1, null, {'billy': {root: {}}});
+      sinon.stub(gatekeeperClient, 'userInGroup').callsArgWith(2, null, {root: {}});
       supertest
         .get('/billy/profile')
         .set(sessionTokenHeader, 'howdy')
