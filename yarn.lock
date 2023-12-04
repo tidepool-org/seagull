@@ -88,15 +88,16 @@ amoeba@0.8.0:
     lodash "4.17.11"
     request "^2.88.0"
 
-amoeba@0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/amoeba/-/amoeba-0.9.0.tgz#e24f009f33c90431e31abee41cec7af6e077bd51"
-  integrity sha512-oY+xjrr7HoSYRQX7bch9r/5KPf6QP1BkIcYXIzTjQeFNa4A5lJH6sLkC4Alx6PSJhlWmY+ZQ5LZCh0akB7An5Q==
+amoeba@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/amoeba/-/amoeba-1.1.0.tgz#df66cb98652804afdbd258e5bb210b6ce8899e81"
+  integrity sha512-lUDac49gVmsfZ0i5vbTx2SddCrMj8mKpRgj995N6s4ikIMC0RrXqDs/D6ZaYVL8f3TWg2wlp6Mr1/YI75UPZZg==
   dependencies:
     bunyan "1.8.12"
     kafkajs "^1.14.0"
     lodash "4.17.19"
     request "^2.88.2"
+    uuid "^8.3.1"
 
 ansi-colors@4.1.1:
   version "4.1.1"
@@ -3872,6 +3873,11 @@ uuid@^3.1.0, uuid@^3.3.2:
   version "3.3.2"
   resolved "https://registry.npmjs.org/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
   integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
+
+uuid@^8.3.1:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8flags@~3.1.1:
   version "3.1.3"
