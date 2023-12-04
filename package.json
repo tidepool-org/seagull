@@ -16,7 +16,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@godaddy/terminus": "^4.6.0",
-    "amoeba": "^1.1.0",
+    "amoeba": "^1.2.0",
     "async": "3.2.0",
     "bunyan": "1.8.14",
     "crypto-js": "4.0.0",
