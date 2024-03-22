@@ -1,6 +1,6 @@
 {
   "name": "seagull",
-  "version": "0.10.1-alpha.5",
+  "version": "0.10.1-alpha.6",
   "description": "API for managing user metadata.",
   "main": "lib/index.js",
   "directories": {
@@ -19,7 +19,7 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@godaddy/terminus": "^4.6.0",
-    "amoeba": "1.2.1-alpha.3",
+    "amoeba": "1.2.1-alpha.4",
     "async": "3.2.4",
     "bunyan": "1.8.14",
     "crypto-js": "4.2.0",
@@ -28,8 +28,8 @@
     "mongodb-legacy": "^5.0.0",
     "restify": "11.1.0",
     "restify-errors": "8.0.2",
-    "tidepool-gatekeeper": "0.2.6-alpha.5",
-    "user-api-client": "0.5.1-alpha.5"
+    "tidepool-gatekeeper": "0.2.6-alpha.6",
+    "user-api-client": "0.5.1-alpha.6"
   },
   "devDependencies": {
     "grunt": "1.6.1",
