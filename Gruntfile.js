@@ -39,16 +39,6 @@ module.exports = function(grunt) {
       },
       all: ['env.js', 'Gruntfile.js', 'lib/**/*.js', 'test/**/*.js']
     },
-    docco: {
-      docs: {
-        src: ['lib/**/*.js', './*.md'],
-        dest: ['docs'],
-        options: {
-          layout: 'linear',
-          output: 'docs'
-        }
-      }
-    },
     shell: {
       addlicense: {
         // this may not be the best way to do this dependency, but this isn't
@@ -75,7 +65,6 @@ module.exports = function(grunt) {
   // Load the plugins
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-docco2');
   grunt.loadNpmTasks('grunt-shell-spawn');
   grunt.loadNpmTasks('grunt-mocha-test');
 

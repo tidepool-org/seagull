@@ -61,7 +61,7 @@ describe('seagull', function () {
 
   after(function () {
     sinon.stub(consumer, 'stop', () => Promise.resolve());
-    seagull.onShutdown()
+    seagull.onShutdown();
     expect(consumer.stop).to.have.been.calledOnce;
   });
 
@@ -376,7 +376,7 @@ describe('seagull', function () {
         .end(
         function (err, res) {
           expect(err).to.not.exist;
-          expect(res.body).deep.equals({"fullName": "Billy McBillface"});
+          expect(res.body).deep.equals({'fullName': 'Billy McBillface'});
           expectToken('howdy');
           done();
         });

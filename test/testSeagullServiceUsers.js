@@ -49,7 +49,7 @@ describe('seagull/users', function () {
   });
 
   after(function () {
-    seagull.onShutdown()
+    seagull.onShutdown();
   });
 
   beforeEach(function () {
