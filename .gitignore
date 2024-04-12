@@ -21,4 +21,8 @@ node_modules
 *.iml
 
 deploy/
-artifact_node.sh
+artifact_docker.sh
+
+.vscode/
+*.envrc
+*.env

@@ -60,12 +60,12 @@ module.exports = (function() {
 
   env.metrics = {
     // The config object to discover highwater (the metrics API).
-    // This is just passed through to hakken.watchFromConfig()
+    // This is just passed through to hostGetter
     serviceSpec: JSON.parse(config.fromEnvironment('METRICS_SERVICE'))
   };
 
   env.userApi = {
-    // The config object to discover user-api.  This is just passed through to hakken.watchFromConfig()
+    // The config object to discover user-api.  This is just passed through to hostGetter
     serviceSpec: JSON.parse(config.fromEnvironment('USER_API_SERVICE')),
 
     // Name of this server to pass to user-api when getting a server token
@@ -76,14 +76,8 @@ module.exports = (function() {
   };
 
   env.gatekeeper = {
-    // The config object to discover gatekeeper.  This is just passed through to hakken.watchFromConfig()
+    // The config object to discover gatekeeper.  This is just passed through to hostGetter
     serviceSpec: JSON.parse(config.fromEnvironment('GATEKEEPER_SERVICE'))
-  };
-
-  env.discovery = {
-    // The host to connect to for discovery
-    host: config.fromEnvironment('DISCOVERY_HOST'),
-    skipHakken: config.fromEnvironment('SKIP_HAKKEN', false)
   };
 
   // The service name to publish on discovery
