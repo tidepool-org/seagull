@@ -19,8 +19,9 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "@godaddy/terminus": "^4.6.0",
-    "amoeba": "1.2.3",
+    "amoeba": "^1.2.3",
     "async": "3.2.4",
+    "axios": "^1.10.0",
     "bunyan": "1.8.15",
     "crypto-js": "4.2.0",
     "kafkajs": "^1.14.0",
@@ -29,7 +30,7 @@
     "restify": "11.1.0",
     "restify-errors": "8.0.2",
     "tidepool-gatekeeper": "0.2.7",
-    "user-api-client": "0.5.2"
+    "user-api-client": "^0.5.3"
   },
   "devDependencies": {
     "grunt": "1.6.1",
